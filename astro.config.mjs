@@ -5,5 +5,5 @@ export default defineConfig({
   output: "static",
   adapter: node({ mode: "standalone" }),
   trailingSlash: "never",
-  build: { format: "file" },
+  build: { format: "directory" },
 });

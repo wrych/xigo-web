@@ -1,12 +1,71 @@
 ---
 import Base from "../layouts/Base.astro";
+import Cover from "../components/Cover.astro";
 import PageIntro from "../components/PageIntro.astro";
+import PostList from "../components/PostList.astro";
+import TopicFilter from "../components/TopicFilter.astro";
+import { TOPICS, formatDate, journalOrder, usedTopics } from "../journal";
+import { allPosts } from "../posts";
 
 const title = "Journal";
 const intro =
   "Notes on self-organization, decisions and change — and news from the events and communities we support.";
+const posts = await allPosts();
+const { lead, rest } = journalOrder(posts);
 ---
 
 <Base title={title} description={intro}>
   <PageIntro title={title} intro={intro} />
+
+  {lead && (
+    <a class="lead" href={`/journal/${lead.id}`}>
+      {lead.data.cover && lead.data.coverAlt && (
+        <Cover
+          src={lead.data.cover}
+          alt={lead.data.coverAlt}
+          sizes="(min-width: 1000px) 560px, 100vw"
+        />
+      )}
+      <span class="lead-text">
+        <span class="label">
+          <span class="dot">{lead.data.featured ? "Featured" : "Latest"}</span>{" "}
+          · {TOPICS[lead.data.topic]} · {formatDate(lead.data.date)}
+        </span>
+        <span class="lead-title">{lead.data.title}</span>
+        <span class="muted">{lead.data.excerpt}</span>
+        <span class="muted small">{lead.data.author}</span>
+      </span>
+    </a>
+  )}
+
+  <TopicFilter topics={usedTopics(posts)} />
+  <PostList posts={rest} />
 </Base>
+
+<style>
+  .lead {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    gap: 48px;
+    align-items: center;
+    padding: 0 0 96px;
+  }
+
+  .lead-text {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .lead-title {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+  }
+
+  .small {
+    font-size: 14px;
+  }
+</style>

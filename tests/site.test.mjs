@@ -2,8 +2,9 @@ import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:net";
-import { fileURLToPath } from "node:url";
+import { readdirSync } from "node:fs";
 import { chromium } from "playwright";
+import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 let server;
@@ -102,20 +103,107 @@ test("the contact section mails info@xigo.ch (R-HOME-5)", async () => {
 });
 
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
-  for (const path of ["/", "/work", "/journal", "/about"]) {
+  for (const path of [
+    "/",
+    "/work",
+    "/journal",
+    "/about",
+    "/journal/topic/software",
+    "/journal/minesweeping-agile",
+  ]) {
     const { html } = await page(path);
     assert.doesNotMatch(html, /<script/);
-    assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/wrych")/);
+    assert.doesNotMatch(html, /\ssrc="https?:\/\//);
+    assert.doesNotMatch(html, /<link\b[^>]*href="https?:\/\//);
   }
+});
+
+const POSTS = readdirSync(new URL("../content/journal", import.meta.url));
+
+const postLinks = (html) =>
+  [...region(html, "main").matchAll(/href="\/journal\/([a-z0-9-]+)"/g)]
+    .map((match) => match[1])
+    .filter((slug) => slug !== "topic");
+
+test("the journal leads with the featured post, then all others newest first (R-JOUR-1)", async () => {
+  const { status, html } = await page("/journal");
+  assert.equal(status, 200);
+  const slugs = postLinks(html);
+  assert.equal(slugs[0], "consent-decisions-simple-not-easy");
+  assert.deepEqual([...new Set(slugs)].sort(), [...POSTS].sort());
+  const dates = [
+    ...region(html, "main").matchAll(/<time datetime="([0-9-]+)"/g),
+  ].map((match) => match[1]);
+  assert.deepEqual(dates.slice(1), [...dates.slice(1)].sort().reverse());
+});
+
+test("the lead post is called featured only when it is (R-JOUR-1)", async () => {
+  const { html } = await page("/journal");
+  assert.match(region(html, "main"), /<span class="dot"[^>]*>Featured<\/span>/);
+});
+
+test("a topic page lists only that topic, and marks its filter (R-JOUR-2)", async () => {
+  const { status, html } = await page("/journal/topic/software");
+  assert.equal(status, 200);
+  assert.deepEqual(postLinks(html).sort(), [
+    "minesweeping-agile",
+    "passionate-about-software",
+  ]);
+  assert.match(
+    html,
+    /<a href="\/journal\/topic\/software" aria-current="page"/,
+  );
+});
+
+test("a post shows its title, author, date, reading time and first publication (R-JOUR-3)", async () => {
+  const { status, html } = await page("/journal/minesweeping-agile");
+  assert.equal(status, 200);
+  const main = region(html, "main");
+  assert.match(main, /<h1[^>]*>Minesweeping Agile<\/h1>/);
+  assert.match(main, /Andy Moesch · <time datetime="2024-11-15"/);
+  assert.match(main, /\d+ min read/);
+  assert.match(
+    main,
+    /First published on <a href="https:\/\/www\.linkedin\.com\/pulse\/minesweeping-agile-andy-moesch\/"[^>]*>LinkedIn<\/a>, 3 Feb 2021/,
+  );
+});
+
+test("images that are not ours are links to their source, not copies (R-JOUR-5)", async () => {
+  const { html } = await page("/journal/minesweeping-agile");
+  const main = region(html, "main");
+  assert.doesNotMatch(main, /wp-content/);
+  assert.equal([...main.matchAll(/see it at its source/g)].length, 4);
+});
+
+test("covers come resized, as webp with a jpeg fallback, with alt text and size (R-CONT-4, R-CONT-5)", async () => {
+  const { html } = await page(
+    "/journal/navigating-change-finding-your-voice-in-a-complex-world",
+  );
+  const picture = /<picture\b[\s\S]*?<\/picture>/.exec(region(html, "main"))[0];
+  const source = /<source[^>]*>/.exec(picture)[0];
+  assert.match(source, /type="image\/webp"/);
+  assert.match(source, /srcset="[^"]*480w[^"]*960w/);
+  const img = /<img[^>]*>/.exec(picture)[0];
+  assert.match(img, /src="\/_astro\/[^"]+\.jpg"/);
+  assert.match(img, /alt="voice in a complex world"/);
+  assert.match(img, /width="\d+" height="\d+"/);
 });
 
 const PHONE = { width: 360, height: 740 };
 
-test("no page scrolls sideways at phone width (R-WEB-3)", async () => {
+test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async () => {
   const browser = await chromium.launch();
   try {
     const tab = await browser.newPage({ viewport: PHONE });
-    for (const path of ["/", "/work", "/journal", "/about", "/no-such-page"]) {
+    for (const path of [
+      "/",
+      "/work",
+      "/journal",
+      "/about",
+      "/journal/topic/software",
+      "/journal/navigating-change-finding-your-voice-in-a-complex-world",
+      "/no-such-page",
+    ]) {
       await tab.goto(`${origin}${path}`);
       const widths = await tab.evaluate(() => ({
         page: document.documentElement.scrollWidth,
