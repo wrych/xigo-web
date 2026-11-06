@@ -1,0 +1,35 @@
+---
+interface Props {
+  title: string;
+  intro: string;
+}
+
+const { title, intro } = Astro.props;
+---
+
+<section class="intro">
+  <h1>{title}</h1>
+  <p class="muted">{intro}</p>
+</section>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    gap: 32px;
+    align-items: end;
+    padding: 96px 0 128px;
+  }
+
+  h1 {
+    font-size: clamp(56px, 9vw, 128px);
+    line-height: 0.95;
+    letter-spacing: -0.05em;
+  }
+
+  p {
+    margin: 0;
+    max-width: 460px;
+    font-size: 18px;
+  }
+</style>

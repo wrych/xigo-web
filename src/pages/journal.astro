@@ -1,0 +1,12 @@
+---
+import Base from "../layouts/Base.astro";
+import PageIntro from "../components/PageIntro.astro";
+
+const title = "Journal";
+const intro =
+  "Notes on self-organization, decisions and change — and news from the events and communities we support.";
+---
+
+<Base title={title} description={intro}>
+  <PageIntro title={title} intro={intro} />
+</Base>

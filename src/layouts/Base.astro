@@ -1,0 +1,150 @@
+---
+import "@fontsource/inter/300.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/space-grotesk/300.css";
+import "@fontsource/space-grotesk/400.css";
+import "../styles/global.css";
+import {
+  CONTACT_HREF,
+  LICENSE_LINE,
+  PAGES,
+  SOURCE_HREF,
+  canonicalPath,
+  isCurrent,
+} from "../navigation";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const path = Astro.url.pathname;
+const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="site-header">
+        <a
+          class="wordmark"
+          href="/"
+          aria-current={isCurrent("/", path) ? "page" : undefined}
+        >
+          xigo<span class="dot">.</span>
+        </a>
+        <nav aria-label="Main">
+          {PAGES.map((page) => (
+            <a
+              href={page.href}
+              aria-current={isCurrent(page.href, path) ? "page" : undefined}
+            >
+              {page.label}
+            </a>
+          ))}
+          <a class="pill" href={CONTACT_HREF}>
+            Get in touch
+          </a>
+        </nav>
+      </header>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <a class="wordmark small" href="/">
+          xigo<span class="dot">.</span>
+        </a>
+        <nav aria-label="Footer">
+          {PAGES.map((page) => (
+            <a href={page.href}>{page.label}</a>
+          ))}
+          <a href={CONTACT_HREF}>Contact</a>
+          <a href={SOURCE_HREF}>GitHub</a>
+        </nav>
+        <p>{LICENSE_LINE}</p>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style>
+  .site-header,
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+  }
+
+  .site-header {
+    padding: 32px 0;
+  }
+
+  .site-header nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 32px;
+    font-size: 14px;
+  }
+
+  .site-header nav a {
+    color: var(--muted);
+  }
+
+  .site-header nav a[aria-current="page"],
+  .site-header nav a:hover {
+    color: var(--text);
+  }
+
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+
+  .wordmark.small {
+    font-size: 18px;
+  }
+
+  .pill {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 20px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--text) !important;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding: 40px 0 56px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+</style>

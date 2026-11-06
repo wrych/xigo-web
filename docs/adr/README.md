@@ -18,3 +18,4 @@ the decision lands, keep it to a page, and supersede rather than edit.
 | [0003](0003-posts-and-projects-are-files.md)                       | Posts and project pages are files in the repository              | Accepted |
 | [0004](0004-deploy-over-a-restricted-key-staging-then-promote.md)  | Deploy over a restricted SSH key: staging, then promote          | Proposed |
 | [0005](0005-code-mit-content-cc-by.md)                             | Code under MIT, content under CC BY 4.0                          | Accepted |
+| [0006](0006-build-the-site-with-astro.md)                          | Build the site with Astro                                        | Accepted |
