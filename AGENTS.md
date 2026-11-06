@@ -18,9 +18,23 @@ specs/
 docs/
   constitution.md   what this project adds to the xigo base rules
   adr/              decisions about xigo-web
+src/                the Astro site (ADR 0006)
+  layouts/          the page frame: navigation and footer
+  pages/            one file per address
+  styles/           design tokens and base styles
+tests/              node:test, against the built site and its server
 ```
 
-The app and its content arrive in their own changes.
+## Commands
+
+|                  |                                                                |
+| ---------------- | -------------------------------------------------------------- |
+| `npm run dev`    | the site with live reload on :4321                             |
+| `npm run build`  | builds the standalone Node server into `dist/`                 |
+| `npm start`      | runs the built server (`HOST`, `PORT`)                         |
+| `npm test`       | builds, starts the server, checks it; 80% coverage floor       |
+| `npm run format` | Prettier, including `.astro` files                             |
+| `npm run review` | the xigOS reviewer on the branch, as the pre-push hook runs it |
 
 ## How a change happens
 

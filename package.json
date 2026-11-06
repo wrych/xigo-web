@@ -9,6 +9,9 @@
     "node": "26.13.x"
   },
   "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "start": "node dist/server/entry.mjs",
     "test": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 \"tests/**/*.test.mjs\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -21,11 +24,18 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
     "xigos": "github:wrych/xigOS#570d20f027a61a117515bc4918b79c8eff7e23c9"
   },
   "lint-staged": {
-    "*.{js,mjs,ts,json,md,yml,yaml}": [
+    "*.{js,mjs,ts,astro,css,json,md,yml,yaml}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.11",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "astro": "^7.4.7"
   }
 }
