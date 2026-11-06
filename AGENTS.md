@@ -12,13 +12,15 @@ How to work in this repository. Read this first; it is short on purpose.
 ## Repo map
 
 ```
+specs/
+  requirements.md   numbered requirements (R-*) every change cites
+  content.md        the shape of a post and a project file
 docs/
   constitution.md   what this project adds to the xigo base rules
   adr/              decisions about xigo-web
 ```
 
-The product spec (`specs/`), the app and its content arrive in their own
-changes, after these decisions.
+The app and its content arrive in their own changes.
 
 ## How a change happens
 
