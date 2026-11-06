@@ -49,9 +49,11 @@ xigo.ch, as served to a visitor.
   post. A post first published elsewhere says where and when.
 - **R-JOUR-4** The site publishes an RSS feed of all posts at `/feed.xml`,
   linked from every page's head and from Journal.
-- **R-JOUR-5** The three articles on the current xigo.ch move over with their
-  original dates, and their old addresses redirect to the new ones
-  permanently.
+- **R-JOUR-5** The seven articles on the current xigo.ch move over with their
+  original dates and authors, and their old addresses (`/post/<slug>/`)
+  redirect to the new ones permanently. Images in them that are not ours are
+  replaced by a link to their source until we have permission, and covers that
+  are not ours are left out (constitution §A).
 
 ## About (R-ABOUT)
 
