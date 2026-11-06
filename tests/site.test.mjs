@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:net";
 import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 let server;
@@ -105,5 +106,33 @@ test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)
     const { html } = await page(path);
     assert.doesNotMatch(html, /<script/);
     assert.doesNotMatch(html, /(src|href)="https?:\/\/(?!github\.com\/wrych")/);
+  }
+});
+
+const PHONE = { width: 360, height: 740 };
+
+test("no page scrolls sideways at phone width (R-WEB-3)", async () => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage({ viewport: PHONE });
+    for (const path of ["/", "/work", "/journal", "/about", "/no-such-page"]) {
+      await tab.goto(`${origin}${path}`);
+      const widths = await tab.evaluate(() => ({
+        page: document.documentElement.scrollWidth,
+        widest: Math.max(
+          0,
+          ...[...document.images].map(
+            (img) => img.getBoundingClientRect().right,
+          ),
+        ),
+      }));
+      assert.ok(widths.page <= PHONE.width, `${path} is ${widths.page}px wide`);
+      assert.ok(
+        widths.widest <= PHONE.width,
+        `${path} has an image reaching ${widths.widest}px`,
+      );
+    }
+  } finally {
+    await browser.close();
   }
 });

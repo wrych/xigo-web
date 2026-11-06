@@ -27,6 +27,7 @@ jobs:
           --from ${{ github.event.pull_request.base.sha }}
           --to ${{ github.event.pull_request.head.sha }}
       - run: npm run format:check
+      - run: npx playwright install --with-deps chromium
       - run: npm test
 
   # The `webserver` target, built once per commit on main (ADR 0004).
