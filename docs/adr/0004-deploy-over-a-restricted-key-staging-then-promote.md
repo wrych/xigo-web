@@ -1,6 +1,6 @@
 # 0004. Deploy over a restricted SSH key: staging on merge, promote to production
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-05
 - **Deciders:** Andy Moesch
 
@@ -77,7 +77,7 @@ approves) each hold `DEPLOY_SSH_KEY` and `DEPLOY_KNOWN_HOSTS` as secrets, and
   chroot has, and its tests run it against a server tree built the same way.
 - Promotion and rollback are instant, because nothing is copied over the
   network.
-- Proposed until the script exists and has run once against staging.
+- Accepted on 2026-11-06, after the first deploy reached staging.xigo.ch.
 
 ## References
 
