@@ -18,16 +18,21 @@ The folder name is the slug and the address (`/journal/<slug>`).
 ---
 title: "Navigating Change: Finding your Voice in a Complex World"
 date: 2024-12-03
-author: "[Ivo Pejakovic or Andy Moesch]"
-topic: change # one of: news, events, self-organization, change, decisions
-excerpt: "Beyond adjusting to external change, many of us must learn to voice tensions and speak about them openly."
+author: Ivo Pejakovic # or Andy Moesch
+topic: change # one of: news, events, self-organization, decisions, change, trust, software
+excerpt: "In today’s ever-changing and complex world, adaptability and flexibility are crucial."
+cover: ./cover.png # optional, beside the post
+coverAlt: "voice in a complex world" # required with a cover
 featured: false # at most one post is featured
-draft: false
+draft: false # R-CONT-3, not yet supported: until it is, a post with it fails the build
 original: # optional: where it was first published
   site: LinkedIn
   date: 2024-11-26
+  url: https://www.linkedin.com/pulse/…
 ---
 ```
+
+The excerpt is a sentence from the post itself, not a new one.
 
 ## A project
 
@@ -51,11 +56,11 @@ draft: false
 The page copy is in the design canvas. Facts on the site come from these
 sources only (constitution §A):
 
-| Fact                                 | Source                              |
-| ------------------------------------ | ----------------------------------- |
-| Founders, bios, LinkedIn profiles    | xigo.ch "about xigo", November 2026 |
-| Contact address `info@xigo.ch`       | xigo.ch "services"                  |
-| Values                               | xigo.ch home page                   |
-| The three articles and their dates   | xigo.ch "articles"                  |
-| Rebel Match                          | its repository's README and license |
-| Living agreements, consent workshops | xigo.ch "services"                  |
+| Fact                                        | Source                                                |
+| ------------------------------------------- | ----------------------------------------------------- |
+| Founders, bios, LinkedIn profiles           | xigo.ch "about xigo", November 2026                   |
+| Contact address `info@xigo.ch`              | xigo.ch "services"                                    |
+| Values                                      | xigo.ch home page                                     |
+| The seven articles, their dates and authors | xigo.ch "articles", and the authors WordPress records |
+| Rebel Match                                 | its repository's README and license                   |
+| Living agreements, consent workshops        | xigo.ch "services"                                    |

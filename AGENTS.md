@@ -18,7 +18,9 @@ specs/
 docs/
   constitution.md   what this project adds to the xigo base rules
   adr/              decisions about xigo-web
+content/journal/    one folder per post: index.md and its images (ADR 0003)
 src/                the Astro site (ADR 0006)
+  content.config.ts the schema every post must satisfy (specs/content.md)
   layouts/          the page frame: navigation and footer
   pages/            one file per address
   styles/           design tokens and base styles
@@ -26,6 +28,7 @@ tests/              node:test, against the built site and its server
 deploy/server/      the deploy script a maintainer installs on the server (ADR 0004)
 scripts/package.sh  the `webserver` target: one archive for the server
 scripts/deploy-is-current.sh  whether a CI run's commit is still main's head
+scripts/check-image-alt.mjs  part of `npm run build`: every built image has alt text
 docs/deploy.md      how a commit reaches staging and production
 ```
 

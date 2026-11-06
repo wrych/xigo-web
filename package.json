@@ -10,9 +10,9 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-image-alt.mjs dist/client",
     "start": "node dist/server/entry.mjs",
-    "test": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 \"tests/**/*.test.mjs\"",
+    "test": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 --test-coverage-include=\"src/**\" --test-coverage-include=\"scripts/**\" \"tests/**/*.test.mjs\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
@@ -23,6 +23,7 @@
     "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
+    "playwright": "^1.63.0",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "xigos": "github:wrych/xigOS#570d20f027a61a117515bc4918b79c8eff7e23c9"
