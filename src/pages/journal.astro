@@ -16,6 +16,9 @@ const { lead, rest } = journalOrder(posts);
 
 <Base title={title} description={intro}>
   <PageIntro title={title} intro={intro} />
+  <p class="feed">
+    <a href="/feed.xml">Subscribe via RSS</a>
+  </p>
 
   {lead && (
     <a class="lead" href={`/journal/${lead.id}`}>
@@ -43,6 +46,16 @@ const { lead, rest } = journalOrder(posts);
 </Base>
 
 <style>
+  .feed {
+    margin: -96px 0 64px;
+  }
+
+  .feed a {
+    font-size: 14px;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
+  }
+
   .lead {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));

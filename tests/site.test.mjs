@@ -189,6 +189,30 @@ test("covers come resized, as webp with a jpeg fallback, with alt text and size 
   assert.match(img, /width="\d+" height="\d+"/);
 });
 
+test("the feed lists every post with its address on xigo.ch and its author (R-JOUR-4)", async () => {
+  const { status, html } = await page("/feed.xml");
+  assert.equal(status, 200);
+  assert.equal([...html.matchAll(/<item>/g)].length, POSTS.length);
+  for (const slug of POSTS) {
+    assert.match(
+      html,
+      new RegExp(`<link>https://xigo\\.ch/journal/${slug}</link>`),
+    );
+  }
+  assert.doesNotMatch(html, /<author>/);
+  assert.match(html, /xmlns:dc="http:\/\/purl\.org\/dc\/elements\/1\.1\/"/);
+  assert.match(html, /<dc:creator>Andy Moesch<\/dc:creator>/);
+  assert.match(html, /<dc:creator>Ivo Pejakovic<\/dc:creator>/);
+});
+
+test("every page links the feed in its head (R-JOUR-4)", async () => {
+  const { html } = await page("/about");
+  assert.match(
+    region(html, "head"),
+    /rel="alternate" type="application\/rss\+xml"[^>]*href="\/feed\.xml"/,
+  );
+});
+
 const PHONE = { width: 360, height: 740 };
 
 test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async () => {
