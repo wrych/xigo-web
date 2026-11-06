@@ -42,7 +42,7 @@ async function page(path) {
 }
 
 before(async () => {
-  const build = spawnSync("npx", ["astro", "build"], {
+  const build = spawnSync("npm", ["run", "build", "--silent"], {
     cwd: root,
     encoding: "utf8",
   });
