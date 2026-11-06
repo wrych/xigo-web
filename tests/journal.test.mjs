@@ -4,6 +4,7 @@ import {
   TOPICS,
   formatDate,
   journalOrder,
+  latest,
   onTopic,
   readingMinutes,
   usedTopics,
@@ -43,6 +44,14 @@ test("two featured posts fail the build, naming both and the field (R-CONT-2)", 
 
 test("an empty journal has no lead", () => {
   assert.deepEqual(journalOrder([]), { lead: undefined, rest: [] });
+});
+
+test("the home page gets the three newest (R-HOME-4)", () => {
+  const posts = ["2021", "2024", "2026", "2023"].map((y) => post(`${y}-01-01`));
+  assert.deepEqual(
+    latest(posts).map((p) => p.date.getUTCFullYear()),
+    [2026, 2024, 2023],
+  );
 });
 
 test("a topic shows only its posts, newest first (R-JOUR-2)", () => {

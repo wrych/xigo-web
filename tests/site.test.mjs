@@ -246,6 +246,15 @@ test("an old address that never existed answers 404 with a link home", async () 
   assert.match(region(html, "main"), /href="\/"/);
 });
 
+test("the home page lists the three newest posts (R-HOME-4)", async () => {
+  const { html } = await page("/");
+  assert.deepEqual(postLinks(html), [
+    "consent-decisions-simple-not-easy",
+    "navigating-change-finding-your-voice-in-a-complex-world",
+    "the-tensions-of-power-and-autonomy-in-self-organization-my-perspective",
+  ]);
+});
+
 const PHONE = { width: 360, height: 740 };
 
 test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async () => {

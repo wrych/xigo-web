@@ -1,5 +1,10 @@
 ---
 import Base from "../layouts/Base.astro";
+import PostList from "../components/PostList.astro";
+import { latest } from "../journal";
+import { allPosts } from "../posts";
+
+const newest = latest(await allPosts());
 ---
 
 <Base
@@ -24,6 +29,16 @@ import Base from "../layouts/Base.astro";
         About xigo
       </a>
     </div>
+  </section>
+
+  <section class="journal" aria-labelledby="journal-heading">
+    <div class="journal-head">
+      <h2 id="journal-heading">Journal</h2>
+      <a class="all" href="/journal">
+        All posts →
+      </a>
+    </div>
+    <PostList posts={newest} excerpts={false} />
   </section>
 
   <section id="contact" class="contact">
@@ -77,6 +92,32 @@ import Base from "../layouts/Base.astro";
     border-radius: 999px;
     border: 1px solid var(--line-strong);
     font-size: 15px;
+  }
+
+  .journal {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 96px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .journal-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .journal-head h2 {
+    font-size: clamp(36px, 4.5vw, 56px);
+  }
+
+  .all {
+    font-size: 15px;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
   }
 
   .contact {

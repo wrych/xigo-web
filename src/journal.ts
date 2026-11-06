@@ -12,6 +12,7 @@ export const TOPICS = {
 export type Topic = keyof typeof TOPICS;
 
 export const WORDS_PER_MINUTE = 200;
+export const HOME_POST_COUNT = 3;
 
 /** The widths a cover is made in, for every page that shows one (R-CONT-4). */
 export const COVER_WIDTHS = [480, 960, 1440];
@@ -44,6 +45,14 @@ export function journalOrder<T extends Dated>(
   const ordered = newestFirst(posts);
   const lead = featured[0] ?? ordered[0];
   return { lead, rest: ordered.filter((post) => post !== lead) };
+}
+
+/** The newest posts, for the home page (R-HOME-4). */
+export function latest<T extends Dated>(
+  posts: readonly T[],
+  count = HOME_POST_COUNT,
+): T[] {
+  return newestFirst(posts).slice(0, count);
 }
 
 /** The posts on one topic, newest first (R-JOUR-2). */
