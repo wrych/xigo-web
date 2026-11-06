@@ -1,0 +1,45 @@
+name: Promote to production
+
+# Production runs what staging ran (ADR 0004): nothing is built or uploaded.
+# Leave the commit empty to promote what staging runs now; give an earlier
+# one still on the server to roll back.
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit to promote (empty: what staging runs)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - id: staging
+        if: inputs.sha == ''
+        uses: ./.github/actions/deploy-ssh
+        with:
+          request: running staging
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          host: ${{ vars.DEPLOY_HOST }}
+          port: ${{ vars.DEPLOY_PORT }}
+          user: ${{ vars.DEPLOY_USER }}
+      - uses: ./.github/actions/deploy-ssh
+        with:
+          request: promote ${{ inputs.sha || steps.staging.outputs.stdout }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          host: ${{ vars.DEPLOY_HOST }}
+          port: ${{ vars.DEPLOY_PORT }}
+          user: ${{ vars.DEPLOY_USER }}

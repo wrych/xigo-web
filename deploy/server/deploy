@@ -1,0 +1,197 @@
+#!/bin/bash
+# The only command the deploy key may run (ADR 0004). Installed by a
+# maintainer at /xigo-web/bin/deploy and never by a deploy, so a leaked key
+# cannot widen what it may do. Uses only the tools the hosting's chroot has.
+set -euo pipefail
+umask 027
+
+readonly SELF_DIR="${0%/*}"
+readonly ROOT="$(cd "$SELF_DIR/../.." && pwd)"
+readonly HOME_DIR="$ROOT/xigo-web"
+readonly RELEASES="$HOME_DIR/releases"
+readonly STATE="$HOME_DIR/state"
+readonly CONFIG="$SELF_DIR/deploy.conf"
+readonly DEFAULT_MAX_BYTES=$((300 * 1024 * 1024))
+readonly KEEP=5
+readonly SHA_PATTERN='^[0-9a-f]{40}$'
+readonly LOCK="$HOME_DIR/lock"
+upload=""
+unpack=""
+max_bytes=""
+locked=""
+
+cleanup() {
+  rm -rf "$upload" "$unpack"
+  if [[ -n "$locked" ]]; then rm -rf "$LOCK"; fi
+}
+trap cleanup EXIT
+
+fail() {
+  echo "deploy: $*" >&2
+  exit 1
+}
+
+app_dir() {
+  case "$1" in
+    staging) echo "$ROOT/staging.xigo.ch" ;;
+    production) echo "$ROOT/xigo.ch" ;;
+    *) fail "unknown target: $1" ;;
+  esac
+}
+
+valid_sha() {
+  [[ "$1" =~ $SHA_PATTERN ]] || fail "not a commit id: $1"
+}
+
+running() {
+  local file="$STATE/$1"
+  if [[ -f "$file" ]]; then
+    local sha
+    read -r sha <"$file"
+    echo "$sha"
+  fi
+}
+
+write_app_js() {
+  local app="$1"
+  printf '%s\n' \
+    'import("./current/dist/server/entry.mjs").catch((error) => {' \
+    '  console.error(error);' \
+    '  process.exit(1);' \
+    '});' >"$app/app.js.new"
+  mv -f "$app/app.js.new" "$app/app.js"
+}
+
+switch_to() {
+  local target="$1" sha="$2"
+  local app
+  app="$(app_dir "$target")"
+  [[ -d "$app" ]] || fail "no app folder for $target"
+  [[ -d "$RELEASES/$sha" ]] || fail "no release $sha on the server"
+
+  rm -f "$app/current.new"
+  ln -s "../xigo-web/releases/$sha" "$app/current.new"
+  mv -fT "$app/current.new" "$app/current"
+  write_app_js "$app"
+  mkdir -p "$app/tmp" "$STATE"
+  printf '%s\n' "$sha" >"$STATE/$target.new"
+  mv -f "$STATE/$target.new" "$STATE/$target"
+  touch "$app/tmp/restart.txt"
+  echo "deploy: $target now runs $sha"
+}
+
+prune() {
+  local keep_staging keep_production count=0 dir sha
+  keep_staging="$(running staging)"
+  keep_production="$(running production)"
+  for dir in $(ls -1td "$RELEASES"/*/ 2>/dev/null); do
+    sha="${dir%/}"
+    sha="${sha##*/}"
+    count=$((count + 1))
+    if ((count > KEEP)) && [[ "$sha" != "$keep_staging" && "$sha" != "$keep_production" ]]; then
+      rm -rf "${RELEASES:?}/$sha"
+    fi
+  done
+}
+
+read_config() {
+  max_bytes="$DEFAULT_MAX_BYTES"
+  [[ -f "$CONFIG" ]] || return 0
+  local key value
+  while IFS='=' read -r key value; do
+    case "$key" in
+      "" | "#"*) ;;
+      max_bytes)
+        [[ "$value" =~ ^[1-9][0-9]*$ ]] || fail "$CONFIG: max_bytes must be a positive whole number"
+        max_bytes="$value"
+        ;;
+      *) fail "$CONFIG: unknown setting $key" ;;
+    esac
+  done <"$CONFIG"
+}
+
+lock() {
+  mkdir -p "$HOME_DIR"
+  mkdir "$LOCK" 2>/dev/null ||
+    fail "another deploy holds $LOCK; try again, or remove it if no deploy is running"
+  locked=yes
+}
+
+has_links() {
+  local listing
+  listing="$(tar -tvzf "$1")"
+  [[ "$listing" =~ (^|$'\n')[lh] ]]
+}
+
+receive() {
+  local sha="$1"
+  valid_sha "$sha"
+  [[ -d "$(app_dir staging)" ]] || fail "no app folder for staging"
+  lock
+  mkdir -p "$RELEASES"
+  upload="$RELEASES/.$sha.tgz"
+  unpack="$RELEASES/.$sha"
+  rm -rf "$upload" "$unpack"
+
+  read_config
+  head -c "$max_bytes" >"$upload"
+  local size
+  size="$(du -b "$upload")"
+  size="${size%%[[:space:]]*}"
+  ((size > 0)) || fail "the upload was empty"
+  ((size < max_bytes)) || fail "the upload is not smaller than $max_bytes bytes"
+  tar -tzf "$upload" >/dev/null 2>&1 || fail "the upload is not a gzipped tar"
+  if has_links "$upload"; then fail "the upload contains links"; fi
+
+  mkdir "$unpack"
+  tar -xzf "$upload" -C "$unpack" --no-same-owner --no-same-permissions
+  [[ -f "$unpack/dist/server/entry.mjs" ]] || fail "the upload has no dist/server/entry.mjs"
+
+  if [[ -d "$RELEASES/$sha" ]]; then
+    echo "deploy: $sha is already on the server; keeping it as it is"
+  else
+    mv "$unpack" "$RELEASES/$sha"
+    touch "$RELEASES/$sha"
+  fi
+  switch_to staging "$sha"
+  prune
+}
+
+promote() {
+  local sha="$1"
+  valid_sha "$sha"
+  lock
+  switch_to production "$sha"
+}
+
+releases() {
+  local dir sha marks
+  for dir in $(ls -1td "$RELEASES"/*/ 2>/dev/null); do
+    sha="${dir%/}"
+    sha="${sha##*/}"
+    marks=""
+    [[ "$sha" == "$(running staging)" ]] && marks+=" staging"
+    [[ "$sha" == "$(running production)" ]] && marks+=" production"
+    echo "$sha$marks"
+  done
+}
+
+main() {
+  local request="${SSH_ORIGINAL_COMMAND:-${*:-}}"
+  local -a words
+  read -r -a words <<<"$request"
+  ((${#words[@]} <= 2)) || fail "too many words in: $request"
+
+  case "${words[0]:-}" in
+    receive) receive "${words[1]:-}" ;;
+    promote) promote "${words[1]:-}" ;;
+    running)
+      app_dir "${words[1]:-}" >/dev/null
+      running "${words[1]}"
+      ;;
+    releases) releases ;;
+    *) fail "allowed: receive <sha>, promote <sha>, running <staging|production>, releases" ;;
+  esac
+}
+
+main "$@"

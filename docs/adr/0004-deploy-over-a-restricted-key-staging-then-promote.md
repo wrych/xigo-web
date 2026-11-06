@@ -31,11 +31,25 @@ SHA. Production never builds.
 | rollback   | `promote` with an earlier SHA             | production switches back to a release still on the server                    |
 
 **The key can only deploy.** Its line in `authorized_keys` carries
-`restrict,command="…"`, which forces one script and allows no shell,
-forwarding or file copy. The script accepts exactly three requests —
-receive a staging release, promote a SHA, list releases — checks that a SHA is
-40 hex characters, writes only inside xigo-web's folders, and keeps the last
-few releases for rollback.
+`restrict,command="/xigo-web/bin/deploy"`, which forces one script and allows
+no shell, forwarding or file copy. The script accepts exactly four requests —
+`receive <sha>`, `promote <sha>`, `running <target>`, `releases` — checks that a
+SHA is 40 hex characters, and writes only inside `/xigo-web`,
+`/staging.xigo.ch` and `/xigo.ch`. An upload must be a gzipped tar under
+the size limit (300 MB, or `max_bytes` in a maintainer's `deploy.conf` beside
+the script) with no links in it and a server entry; anything else is refused and
+staging stays as it was. A maintainer installs the script by hand; a deploy
+never replaces it, so a leaked key cannot change the rules the script enforces.
+
+**Layout.** Releases live outside every web root, in `/xigo-web/releases/<sha>`.
+Each app folder holds a relative link `current` to its release and Passenger's
+startup file `app.js`, which imports `current/dist/server/entry.mjs`. Switching
+replaces the link in one rename and touches `tmp/restart.txt`. The last five
+releases are kept, and never one a target runs. A
+release the server already has is never replaced, only switched to. Receiving
+and promoting take a lock (an atomic `mkdir`; the chroot has no `flock`). A
+second run is refused rather than queued. A run that is cut off releases it; a
+lock left behind anyway is removed by a maintainer, never taken over by a run.
 
 **GitHub**: environments `staging` (no approval) and `production` (a maintainer
 approves) each hold `DEPLOY_SSH_KEY` and `DEPLOY_KNOWN_HOSTS` as secrets, and
@@ -54,14 +68,16 @@ approves) each hold `DEPLOY_SSH_KEY` and `DEPLOY_KNOWN_HOSTS` as secrets, and
 
 ## Consequences
 
-- A leaked key can at most deploy a version of xigo-web; it cannot read or
-  change the other sites.
-- The deploy script runs in a minimal chroot, so it uses only `bash` built-ins
-  and the tools listed above, and is tested against that.
+- **A leaked key can still run any code as the hosting user**, which owns
+  xigo's other sites: the script cannot tell a real build from a forged one.
+  ADR 0007 accepts that risk and says how the key is guarded.
+- The deploy script runs in a minimal chroot (no `cat`, `find`, `readlink`,
+  `dirname` or `node`), so it uses only `bash` built-ins and the tools the
+  chroot has, and its tests run it against a server tree built the same way.
 - Promotion and rollback are instant, because nothing is copied over the
   network.
 - Proposed until the script exists and has run once against staging.
 
 ## References
 
-Rebel Match ADR 0025. Constitution §D.
+Rebel Match ADR 0025. ADR 0007. Constitution §D.

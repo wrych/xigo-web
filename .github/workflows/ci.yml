@@ -28,3 +28,77 @@ jobs:
           --to ${{ github.event.pull_request.head.sha }}
       - run: npm run format:check
       - run: npm test
+
+  # The `webserver` target, built once per commit on main (ADR 0004).
+  package:
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: scripts/package.sh "$RUNNER_TEMP/release.tgz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: ${{ runner.temp }}/release.tgz
+          retention-days: 1
+
+  # Whether this run's commit is still main's head. Its own job, so a stale
+  # run never joins the deploy queue, where it would cancel a newer deploy
+  # waiting there.
+  current:
+    needs: package
+    runs-on: ubuntu-latest
+    outputs:
+      current: ${{ steps.current.outputs.current }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      SHA: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: current
+        run: scripts/deploy-is-current.sh
+
+  # Staging, only from a green commit that is still main's head, one deploy
+  # at a time (ADR 0004).
+  deploy:
+    needs: [check, package, current]
+    if: needs.current.outputs.current == 'true'
+    runs-on: ubuntu-latest
+    environment: staging
+    concurrency:
+      group: deploy-staging
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+          path: ${{ runner.temp }}
+
+      # Asked again: a re-run of this job alone reuses `current`'s answer from
+      # when the run began, and a newer commit may have deployed since.
+      - name: Still the commit to deploy
+        id: current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: scripts/deploy-is-current.sh
+
+      - if: steps.current.outputs.current == 'true'
+        uses: ./.github/actions/deploy-ssh
+        with:
+          request: receive ${{ github.sha }}
+          upload: ${{ runner.temp }}/release.tgz
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          host: ${{ vars.DEPLOY_HOST }}
+          port: ${{ vars.DEPLOY_PORT }}
+          user: ${{ vars.DEPLOY_USER }}
