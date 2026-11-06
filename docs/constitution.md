@@ -41,8 +41,11 @@ stricter rule wins.
 
 - **Production runs only what staging ran.** It is never built or deployed
   directly (ADR 0004).
-- **The deploy key can do one thing:** deploy xigo-web. It never gives a shell,
-  and it never reaches the other sites on the same server.
+- **The deploy key can do one thing:** deploy xigo-web. It never gives a shell
+  or copies files. What it deploys runs as the hosting user that owns xigo's
+  other sites too, so the key is guarded like that user's password: only in
+  GitHub's deployment environments, only from `main`, never on a laptop
+  (ADR 0007).
 
 ---
 
