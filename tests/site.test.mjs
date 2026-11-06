@@ -120,6 +120,16 @@ test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)
 
 const POSTS = readdirSync(new URL("../content/journal", import.meta.url));
 
+const OLD_SLUGS = [
+  "consent-decisions-simple-not-easy",
+  "navigating-change-finding-your-voice-in-a-complex-world",
+  "the-tensions-of-power-and-autonomy-in-self-organization-my-perspective",
+  "why-i-love-self-managing-organizations-it-starts-with-you",
+  "neuroscience-of-trust",
+  "minesweeping-agile",
+  "passionate-about-software",
+];
+
 const postLinks = (html) =>
   [...region(html, "main").matchAll(/href="\/journal\/([a-z0-9-]+)"/g)]
     .map((match) => match[1])
@@ -211,6 +221,29 @@ test("every page links the feed in its head (R-JOUR-4)", async () => {
     region(html, "head"),
     /rel="alternate" type="application\/rss\+xml"[^>]*href="\/feed\.xml"/,
   );
+});
+
+for (const slug of OLD_SLUGS) {
+  test(`the old address of ${slug} moves permanently to the journal (R-JOUR-5)`, async () => {
+    let location = `/post/${slug}/`;
+    const hops = [];
+    while (hops.length < 3) {
+      const response = await fetch(`${origin}${location}`, {
+        redirect: "manual",
+      });
+      if (response.status !== 301) break;
+      location = new URL(response.headers.get("location"), origin).pathname;
+      hops.push(location);
+    }
+    assert.equal(location, `/journal/${slug}`);
+    assert.equal((await page(location)).status, 200);
+  });
+}
+
+test("an old address that never existed answers 404 with a link home", async () => {
+  const { status, html } = await page("/post/no-such-post");
+  assert.equal(status, 404);
+  assert.match(region(html, "main"), /href="\/"/);
 });
 
 const PHONE = { width: 360, height: 740 };
