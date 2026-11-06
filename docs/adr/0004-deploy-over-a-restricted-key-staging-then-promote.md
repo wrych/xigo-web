@@ -31,8 +31,9 @@ SHA. Production never builds.
 | rollback   | `promote` with an earlier SHA             | production switches back to a release still on the server                    |
 
 **The key can only deploy.** Its line in `authorized_keys` carries
-`restrict,command="/xigo-web/bin/deploy"`, which forces one script and allows
-no shell, forwarding or file copy. The script accepts exactly four requests —
+`restrict,command="/bin/bash /xigo-web/bin/deploy"`, which forces one script
+and allows no shell, forwarding or file copy. The script is started through
+`bash` because the hosting kills files started directly from the home folder. The script accepts exactly four requests —
 `receive <sha>`, `promote <sha>`, `running <target>`, `releases` — checks that a
 SHA is 40 hex characters, and writes only inside `/xigo-web`,
 `/staging.xigo.ch` and `/xigo.ch`. An upload must be a gzipped tar under

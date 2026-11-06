@@ -56,12 +56,23 @@ this public repository.
    ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" 'chmod 750 /xigo-web/bin/deploy'
    ```
 
-3. **Restrict the key.** In `/.ssh/authorized_keys` on the server (`vi` is
-   there), put this in front of the `ssh-ed25519 …` line of the deploy key,
-   with one space after it:
+3. **Restrict the key.** Put this in front of the deploy key's
+   `ssh-ed25519 …` line in `/.ssh/authorized_keys`, with one space after it:
 
    ```
-   restrict,command="/xigo-web/bin/deploy"
+   restrict,command="/bin/bash /xigo-web/bin/deploy"
+   ```
+
+   The script is started through `bash`: the hosting kills files started
+   directly from the home folder (`Killed`, and ssh exits with 255). The
+   chroot has no `cat`, and `vi` may be missing, so this rewrites the line with
+   `bash` alone. It finds the deploy key by its public key, replaces any
+   options the line already has, and keeps a backup. It refuses to run without
+   a valid public key, and restores the backup and fails if the key is not in
+   the file:
+
+   ```bash
+   ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "key=$(cut -d' ' -f2 ~/.ssh/xigo-web-deploy.pub)"'; case "$key" in AAAAC3NzaC1lZDI1NTE5*) ;; *) echo "not an ed25519 public key: $key" >&2; exit 1 ;; esac; f=/.ssh/authorized_keys; cp "$f" "$f.bak" || exit 1; found=; while IFS= read -r line || [ -n "$line" ]; do case "$line" in *"ssh-ed25519 $key" | *"ssh-ed25519 $key "*) found=yes; printf "%s\n" "restrict,command=\"/bin/bash /xigo-web/bin/deploy\" ssh-ed25519 ${line#*ssh-ed25519 }" ;; *) printf "%s\n" "$line" ;; esac; done < "$f.bak" > "$f"; if [ -z "$found" ]; then cp "$f.bak" "$f"; echo "the deploy key is not in $f" >&2; exit 1; fi; chmod 600 "$f" && echo "$(< "$f")"'
    ```
 
 4. **Check it.** The first must print nothing and succeed; the second must be
