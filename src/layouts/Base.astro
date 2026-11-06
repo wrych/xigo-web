@@ -32,6 +32,12 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
     <meta name="description" content={description} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="xigo — Journal"
+      href="/feed.xml"
+    />
   </head>
   <body>
     <div class="wrap">

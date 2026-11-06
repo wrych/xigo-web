@@ -23,6 +23,7 @@ function projectWith(post, files = {}) {
     "astro.config.mjs",
     "package.json",
     "tsconfig.json",
+    "scripts",
   ]) {
     cpSync(join(repo, path), join(dir, path), { recursive: true });
   }
@@ -34,6 +35,12 @@ function projectWith(post, files = {}) {
   }
   return dir;
 }
+
+const build = (dir) =>
+  spawnSync("npm", ["run", "build", "--silent"], {
+    cwd: dir,
+    encoding: "utf8",
+  });
 
 const sync = (dir) =>
   spawnSync("npx", ["astro", "sync"], { cwd: dir, encoding: "utf8" });
@@ -103,6 +110,29 @@ for (const [name, fields] of [
     assert.match(output, /coverAlt/);
   });
 }
+
+test("an image in a post without alt text fails the build (R-CONT-5)", () => {
+  const post = frontMatter(valid).replace(
+    /Text\.\n$/,
+    "![][picture]\n\n[picture]: ./cover.png\n",
+  );
+  const result = build(projectWith(post, aCover));
+  const output = result.stdout + result.stderr;
+  assert.notEqual(result.status, 0);
+  assert.match(
+    output,
+    /journal\/a-post\/index\.html: images need alt text \(R-CONT-5\)/,
+  );
+});
+
+test("an image in a post with alt text builds", () => {
+  const post = frontMatter(valid).replace(
+    /Text\.\n$/,
+    "![A cover](./cover.png)\n",
+  );
+  const result = build(projectWith(post, aCover));
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+});
 
 test("no post loads an image from the old WordPress site (R-JOUR-5)", () => {
   for (const slug of readdirSync(join(repo, "content/journal"))) {

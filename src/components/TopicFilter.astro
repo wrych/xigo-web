@@ -1,0 +1,52 @@
+---
+import { TOPICS, type Topic } from "../journal";
+
+interface Props {
+  topics: Topic[];
+  current?: Topic;
+}
+
+const { topics, current } = Astro.props;
+const links = [
+  { href: "/journal", label: "All", active: current === undefined },
+  ...topics.map((topic) => ({
+    href: `/journal/topic/${topic}`,
+    label: TOPICS[topic],
+    active: topic === current,
+  })),
+];
+---
+
+<nav aria-label="Topics" class="topics">
+  {links.map((link) => (
+    <a href={link.href} aria-current={link.active ? "page" : undefined}>
+      {link.label}
+    </a>
+  ))}
+</nav>
+
+<style>
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 32px;
+  }
+
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 20px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  a[aria-current="page"] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--ground);
+  }
+</style>

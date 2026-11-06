@@ -1,0 +1,13 @@
+---
+import NotFound from "../404.astro";
+import { allPosts } from "../../posts";
+
+export const prerender = false;
+
+const posts = await allPosts();
+const post = posts.find((candidate) => candidate.id === Astro.params.slug);
+if (post) return Astro.redirect(`/journal/${post.id}`, 301);
+Astro.response.status = 404;
+---
+
+<NotFound />

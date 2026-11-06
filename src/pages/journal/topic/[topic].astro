@@ -1,0 +1,24 @@
+---
+import Base from "../../../layouts/Base.astro";
+import PageIntro from "../../../components/PageIntro.astro";
+import PostList from "../../../components/PostList.astro";
+import TopicFilter from "../../../components/TopicFilter.astro";
+import { TOPICS, onTopic, usedTopics, type Topic } from "../../../journal";
+import { allPosts } from "../../../posts";
+
+export async function getStaticPaths() {
+  const posts = await allPosts();
+  return usedTopics(posts).map((topic) => ({ params: { topic } }));
+}
+
+const topic = Astro.params.topic as Topic;
+const posts = await allPosts();
+const title = `Journal: ${TOPICS[topic]}`;
+const intro = `Every post on ${TOPICS[topic].toLowerCase()}, newest first.`;
+---
+
+<Base title={title} description={intro}>
+  <PageIntro title={TOPICS[topic]} intro={intro} />
+  <TopicFilter topics={usedTopics(posts)} current={topic} />
+  <PostList posts={onTopic(posts, topic)} />
+</Base>
