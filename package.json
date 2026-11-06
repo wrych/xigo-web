@@ -12,14 +12,16 @@
     "test": "node --test --experimental-test-coverage --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 \"tests/**/*.test.mjs\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "review": "xigos-review"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "prettier": "^3.9.10"
+    "prettier": "^3.9.10",
+    "xigos": "github:wrych/xigOS#570d20f027a61a117515bc4918b79c8eff7e23c9"
   },
   "lint-staged": {
     "*.{js,mjs,ts,json,md,yml,yaml}": [
