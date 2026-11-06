@@ -34,9 +34,8 @@ xigo.ch, as served to a visitor.
 
 - **R-WORK-1** Work lists every published project, featured first, then newest
   first, each with title, year, summary, topics and image.
-- **R-WORK-2** Work can be filtered by topic. Without JavaScript the full list
-  shows; each filter is also a link (`/work?topic=<topic>`) that the server
-  answers with the filtered list.
+- **R-WORK-2** Work can be filtered by topic. Each filter is a link to its own
+  page (`/work/topic/<topic>`) with the filtered list (ADR 0008).
 - **R-WORK-3** A project page shows the project's text and, where it has one,
   a link to its source code and its license.
 
@@ -44,7 +43,8 @@ xigo.ch, as served to a visitor.
 
 - **R-JOUR-1** Journal shows the featured post large, then every other post,
   newest first, with date, title, excerpt and topic.
-- **R-JOUR-2** Journal can be filtered by topic, in the same way as R-WORK-2.
+- **R-JOUR-2** Journal can be filtered by topic, in the same way as R-WORK-2
+  (`/journal/topic/<topic>`).
 - **R-JOUR-3** A post page shows title, date, author, reading time and the
   post. A post first published elsewhere says where and when.
 - **R-JOUR-4** The site publishes an RSS feed of all posts at `/feed.xml`,

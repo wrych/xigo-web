@@ -1,6 +1,6 @@
 # 0006. Build the site with Astro
 
-- **Status:** Accepted
+- **Status:** Accepted, amended by 0008
 - **Date:** 2026-11-06
 - **Deciders:** Andy Moesch
 
