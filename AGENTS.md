@@ -36,6 +36,19 @@ The app and its content arrive in their own changes.
 A new post or project page is a change like any other: its own branch and pull
 request, so it is previewed and reviewed before it is published.
 
+### Before you push
+
+`npm install` sets up the git hooks; in a cloud session the SessionStart hook
+runs it. Commit messages are checked by commitlint and staged files are
+formatted. The pre-push hook runs the format check, the tests, and then the
+**xigOS review gate** (`npx xigos-review --pre-push`), pinned to a commit of
+xigOS in `package.json`. A finding at the threshold blocks the push: fix it, or
+— if the reviewer is wrong — say why in the PR. **Agents never use
+`--no-verify`.**
+
+The project settings enable the xigOS plugin, so every session starts with the
+base rules in view and can call the reviewer as `xigos:reviewer`.
+
 ### Merging
 
 | The change                                                     | Merged by                         |
