@@ -1,0 +1,53 @@
+name: Deploy over SSH
+description: Runs one request against the server's deploy script (ADR 0004)
+inputs:
+  request:
+    description: "receive <sha> | promote <sha> | running <target> | releases"
+    required: true
+  upload:
+    description: A file to send as the request's input
+    required: false
+    default: ""
+  key:
+    required: true
+  known-hosts:
+    required: true
+  host:
+    required: true
+  port:
+    required: true
+  user:
+    required: true
+outputs:
+  stdout:
+    description: What the deploy script printed
+    value: ${{ steps.run.outputs.stdout }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        REQUEST: ${{ inputs.request }}
+        UPLOAD: ${{ inputs.upload }}
+        KEY: ${{ inputs.key }}
+        KNOWN_HOSTS: ${{ inputs.known-hosts }}
+        HOST: ${{ inputs.host }}
+        PORT: ${{ inputs.port }}
+        DEPLOY_USER: ${{ inputs.user }}
+      run: |
+        dir="$(mktemp -d)"
+        trap 'rm -rf "$dir"' EXIT
+        printf '%s\n' "$KEY" > "$dir/key"
+        printf '%s\n' "$KNOWN_HOSTS" > "$dir/known_hosts"
+        chmod 600 "$dir/key"
+        ssh_args=(-i "$dir/key" -p "$PORT" -o IdentitiesOnly=yes
+          -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$dir/known_hosts"
+          -o BatchMode=yes)
+        if [ -n "$UPLOAD" ]; then
+          out="$(ssh "${ssh_args[@]}" "$DEPLOY_USER@$HOST" "$REQUEST" < "$UPLOAD")"
+        else
+          out="$(ssh "${ssh_args[@]}" "$DEPLOY_USER@$HOST" "$REQUEST" < /dev/null)"
+        fi
+        printf '%s\n' "$out"
+        { echo "stdout<<EOF"; printf '%s\n' "$out"; echo "EOF"; } >> "$GITHUB_OUTPUT"

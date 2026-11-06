@@ -25,6 +25,8 @@ src/                the Astro site (ADR 0006)
 tests/              node:test, against the built site and its server
 deploy/server/      the deploy script a maintainer installs on the server (ADR 0004)
 scripts/package.sh  the `webserver` target: one archive for the server
+scripts/deploy-is-current.sh  whether a CI run's commit is still main's head
+docs/deploy.md      how a commit reaches staging and production
 ```
 
 ## Commands
