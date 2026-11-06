@@ -46,6 +46,9 @@ xigOS in `package.json`. A finding at the threshold blocks the push: fix it, or
 — if the reviewer is wrong — say why in the PR. **Agents never use
 `--no-verify`.**
 
+The project settings enable the xigOS plugin, so every session starts with the
+base rules in view and can call the reviewer as `xigos:reviewer`.
+
 ### Merging
 
 | The change                                                     | Merged by                         |
