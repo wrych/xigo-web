@@ -8,6 +8,7 @@ The shape of the files that make the site's content (ADR 0003, R-CONT-1).
 content/
   journal/<slug>/index.md     a post, and the images it uses beside it
   work/<slug>/index.md        a project, and its images
+  people/<slug>/index.md      a founder's profile (R-ABOUT-4)
 ```
 
 The folder name is the slug and the address (`/journal/<slug>`).
@@ -51,16 +52,31 @@ draft: false
 ---
 ```
 
+## A profile
+
+```yaml
+---
+name: Ivo Pejakovic # or Andy Moesch
+role: "Co-founder of xigo, responsible for networking and content, plus part of the hands-on work."
+linkedin: https://www.linkedin.com/in/… # optional, once confirmed
+---
+```
+
+The body is Markdown with these sections, in this order: Short bio, What I can
+help with, Experience, Methods and qualifications, Tools and technology,
+Languages. It names no employer, client, organisation or colleague.
+
 ## The copy
 
 The page copy is in the design canvas. Facts on the site come from these
 sources only (constitution §A):
 
-| Fact                                        | Source                                                |
-| ------------------------------------------- | ----------------------------------------------------- |
-| Founders, bios, LinkedIn profiles           | xigo.ch "about xigo", November 2026                   |
-| Contact address `info@xigo.ch`              | xigo.ch "services"                                    |
-| Values                                      | xigo.ch home page                                     |
-| The seven articles, their dates and authors | xigo.ch "articles", and the authors WordPress records |
-| Rebel Match                                 | its repository's README and license                   |
-| Living agreements, consent workshops        | xigo.ch "services"                                    |
+| Fact                                        | Source                                                  |
+| ------------------------------------------- | ------------------------------------------------------- |
+| Founders, bios, LinkedIn profiles           | xigo.ch "about xigo", November 2026                     |
+| Contact address `info@xigo.ch`              | xigo.ch "services"                                      |
+| Values                                      | xigo.ch home page                                       |
+| The seven articles, their dates and authors | xigo.ch "articles", and the authors WordPress records   |
+| Rebel Match                                 | its repository's README and license                     |
+| Living agreements, consent workshops        | xigo.ch "services"                                      |
+| Ivo's profile                               | his master file, exported and approved by him, Nov 2026 |
