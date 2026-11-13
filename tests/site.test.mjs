@@ -110,6 +110,7 @@ test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)
     "/about",
     "/journal/topic/software",
     "/journal/minesweeping-agile",
+    "/about/ivo",
   ]) {
     const { html } = await page(path);
     assert.doesNotMatch(html, /<script/);
@@ -255,6 +256,42 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
   ]);
 });
 
+const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));
+
+test("About links every founder's profile (R-ABOUT-4)", async () => {
+  const { html } = await page("/about");
+  const main = region(html, "main");
+  for (const slug of PEOPLE) {
+    assert.match(main, new RegExp(`href="/about/${slug}"`));
+  }
+});
+
+test("a profile shows name, role and its sections, under About (R-ABOUT-4, R-NAV-2)", async () => {
+  const { status, html } = await page("/about/ivo");
+  assert.equal(status, 200);
+  const main = region(html, "main");
+  assert.match(main, /<h1[^>]*>Ivo Pejakovic<\/h1>/);
+  assert.match(main, /Co-founder of xigo/);
+  const headings = [...main.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(headings, [
+    "Short bio",
+    "What I can help with",
+    "Experience",
+    "Methods and qualifications",
+    "Tools and technology",
+    "Languages",
+  ]);
+  assert.match(region(html, "header"), /<a href="\/about" aria-current="page"/);
+  assert.match(region(html, "head"), /<title>Ivo Pejakovic — xigo<\/title>/);
+});
+
+test("a profile without a LinkedIn address shows no LinkedIn link (R-ABOUT-4)", async () => {
+  const { html } = await page("/about/ivo");
+  assert.doesNotMatch(region(html, "main"), /linkedin/i);
+});
+
 const PHONE = { width: 360, height: 740 };
 
 test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async () => {
@@ -268,6 +305,7 @@ test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async
       "/about",
       "/journal/topic/software",
       "/journal/navigating-change-finding-your-voice-in-a-complex-world",
+      "/about/ivo",
       "/no-such-page",
     ]) {
       await tab.goto(`${origin}${path}`);

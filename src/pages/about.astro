@@ -1,12 +1,80 @@
 ---
+import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import PageIntro from "../components/PageIntro.astro";
 
 const title = "About";
 const intro =
   "We’ve been lucky in our careers. Now we want to give back — to the organisations, foundations and communities doing good work.";
+const people = (await getCollection("people")).sort((a, b) =>
+  a.data.name.localeCompare(b.data.name),
+);
 ---
 
 <Base title={title} description={intro}>
   <PageIntro title={title} intro={intro} />
+  {people.length > 0 && (
+    <section class="people" aria-labelledby="people-heading">
+      <h2 id="people-heading">Who we are</h2>
+      <ul>
+        {people.map((person) => (
+          <li>
+            <a href={`/about/${person.id}`}>
+              <span class="name">{person.data.name}</span>
+              <span class="muted">{person.data.role}</span>
+              <span class="more">Profile →</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 </Base>
+
+<style>
+  .people {
+    padding-bottom: 128px;
+  }
+
+  h2 {
+    font-size: clamp(28px, 4vw, 40px);
+    margin-bottom: 32px;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 24px;
+  }
+
+  li a {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+  }
+
+  li a:hover,
+  li a:focus-visible {
+    border-color: var(--line-strong);
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  .more {
+    margin-top: auto;
+    font-size: 14px;
+    color: var(--accent);
+  }
+</style>

@@ -1,0 +1,104 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+
+export async function getStaticPaths() {
+  const people = await getCollection("people");
+  return people.map((person) => ({
+    params: { slug: person.id },
+    props: { person },
+  }));
+}
+
+const { person } = Astro.props as { person: CollectionEntry<"people"> };
+const { Content } = await render(person);
+const { name, role, linkedin } = person.data;
+---
+
+<Base title={name} description={role}>
+  <article>
+    <header>
+      <p class="label">
+        <a href="/about">About</a> · Profile
+      </p>
+      <h1>{name}</h1>
+      <p class="role muted">{role}</p>
+      {linkedin && (
+        <p class="role">
+          <a class="link" href={linkedin}>
+            LinkedIn
+          </a>
+        </p>
+      )}
+    </header>
+    <div class="body">
+      <Content />
+    </div>
+    <p class="back">
+      <a class="link" href="/about">
+        Back to About
+      </a>
+    </p>
+  </article>
+</Base>
+
+<style>
+  article {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 64px 0 128px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  header p {
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(40px, 6vw, 80px);
+  }
+
+  .role {
+    font-size: 18px;
+    max-width: 560px;
+  }
+
+  .label a,
+  .link,
+  .body :global(a) {
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .body {
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  .body :global(h2) {
+    font-size: 28px;
+    margin: 48px 0 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .body :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .body :global(li) {
+    margin-bottom: 8px;
+  }
+
+  .body :global(strong) {
+    font-weight: 500;
+  }
+
+  .back {
+    margin-top: 64px;
+  }
+</style>
