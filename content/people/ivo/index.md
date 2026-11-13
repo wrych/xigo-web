@@ -71,9 +71,11 @@ try things out rather than as a consulting business.
 - Open Space Change and fishbowl discussions
 - Lean (one-piece flow, process visualisation)
 - IT project management and user acceptance testing
-- MAS in Information Systems Management, FHNW (2024)
+- MAS in Information Systems Management, Swiss university of applied sciences
+  (2024)
 - CAS IT Project Management (2023), CAS IT Management (2022) and CAS “Going
-  Teal – Self-Organisation for Agile Practice” (2021), all FHNW
+  Teal – Self-Organisation for Agile Practice” (2021), all at the same
+  university
 - Certified Technician HF in Business Processes (2016)
 - Process Specialist with Swiss Federal Certificate (2014)
 - Apprenticeship as automation technician (2005)
