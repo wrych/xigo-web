@@ -40,4 +40,19 @@ const journal = defineCollection({
       ),
 });
 
-export const collections = { journal };
+const people = defineCollection({
+  loader: glob({
+    pattern: "*/index.md",
+    base: "./content/people",
+    generateId: ({ entry }) => entry.split("/")[0],
+  }),
+  schema: z
+    .object({
+      name: z.enum(AUTHORS),
+      role: z.string().min(1),
+      linkedin: z.url().optional(),
+    })
+    .strict(),
+});
+
+export const collections = { journal, people };

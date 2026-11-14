@@ -7,7 +7,8 @@ xigo.ch, as served to a visitor.
 
 - **R-NAV-1** The site has four pages: Home (`/`), Work (`/work`), Journal
   (`/journal`) and About (`/about`). Each post has its own page
-  (`/journal/<slug>`), and so does each project (`/work/<slug>`).
+  (`/journal/<slug>`), so does each project (`/work/<slug>`), and so does each
+  founder's profile (`/about/<slug>`).
 - **R-NAV-2** Every page shows the wordmark, linking to Home, and links to Work,
   Journal, About and to the contact section. The current page is marked with
   `aria-current="page"`.
@@ -63,6 +64,11 @@ xigo.ch, as served to a visitor.
   purpose and autonomy; simple and transparent.
 - **R-ABOUT-3** About shows the two founders, Ivo Pejakovic and Andy Moesch,
   each with photo, role, a short bio and a link to their LinkedIn profile.
+- **R-ABOUT-4** Each founder may have a profile page (`/about/<slug>`),
+  linked from About: role, short bio, what they can help with, experience,
+  methods and qualifications, tools and languages. A profile names no
+  employer, client, organisation or colleague; it describes them in general
+  terms. It shows a photo and a LinkedIn link only once there is one.
 
 ## Content (R-CONT)
 
