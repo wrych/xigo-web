@@ -19,12 +19,12 @@
     "review": "xigos-review"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.4.0",
-    "playwright": "^1.63.0",
-    "prettier": "^3.9.10",
+    "lint-staged": "^17.6.1",
+    "playwright": "^1.65.1",
+    "prettier": "^3.10.1",
     "prettier-plugin-astro": "^1.1.2",
     "xigos": "github:wrych/xigOS#570d20f027a61a117515bc4918b79c8eff7e23c9"
   },
@@ -34,10 +34,10 @@
     ]
   },
   "dependencies": {
-    "@astrojs/node": "^11.1.11",
+    "@astrojs/node": "^11.1.13",
     "@astrojs/rss": "^4.0.19",
     "@fontsource/inter": "^5.3.0",
     "@fontsource/space-grotesk": "^5.3.0",
-    "astro": "^7.4.7"
+    "astro": "^7.4.12"
   }
 }
