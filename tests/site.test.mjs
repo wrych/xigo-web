@@ -327,6 +327,13 @@ test("the network scene is labelled, and says it is an illustration (R-WORK-4)",
   assert.match(main, /An illustration, not real members or data\./);
 });
 
+test("the Rebel Match page shows the app's screens, marked as sample data (R-CONT-4, R-CONT-5)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  assert.match(main, /<img[^>]*alt="Three phone screens from Rebel Match/);
+  assert.match(main, /made-up sample members/);
+});
+
 test("the network scene stands still under reduced motion (R-WEB-4)", async () => {
   const browser = await chromium.launch();
   try {

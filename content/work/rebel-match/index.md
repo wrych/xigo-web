@@ -9,6 +9,10 @@ scene: network
 source: https://github.com/wrych/rebel-match
 license: MIT
 featured: true
+figures:
+  - image: ./screens.png
+    alt: 'Three phone screens from Rebel Match. The first welcomes a member and offers two choices, "Ask for help" and "Offer help". The second shows a challenge someone wrote and, under "Your matches", a peer in the same boat with a button to connect. The third shows another member''s challenge on a card, with the answers "Same boat", "Been there", "Follow topic" and "Skip".'
+    caption: "Screens from the Rebel Match app, filled with its made-up sample members."
 ---
 
 ## Nobody should face a hard change alone
