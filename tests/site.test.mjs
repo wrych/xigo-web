@@ -111,6 +111,7 @@ test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)
     "/journal/topic/software",
     "/journal/minesweeping-agile",
     "/about/ivo",
+    "/work/rebel-match",
     "/about/andy",
   ]) {
     const { html } = await page(path);
@@ -304,6 +305,63 @@ test("a profile without a LinkedIn address shows no LinkedIn link (R-ABOUT-4)", 
   assert.doesNotMatch(region(html, "main"), /linkedin/i);
 });
 
+const PROJECTS = readdirSync(new URL("../content/work", import.meta.url));
+
+test("Work lists every project, the featured one first (R-WORK-1)", async () => {
+  const { html } = await page("/work");
+  const main = region(html, "main");
+  const slugs = [...main.matchAll(/href="\/work\/([a-z0-9-]+)"/g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual([...slugs].sort(), [...PROJECTS].sort());
+  assert.equal(slugs[0], "rebel-match");
+  assert.match(main, /Featured/);
+  assert.match(main, /<img[^>]*alt="An illustration of a network/);
+});
+
+test("a project page shows its text, its source code and its license (R-WORK-3)", async () => {
+  const { status, html } = await page("/work/rebel-match");
+  assert.equal(status, 200);
+  const main = region(html, "main");
+  assert.match(main, /<h1[^>]*>Rebel Match<\/h1>/);
+  assert.match(main, /href="https:\/\/github\.com\/wrych\/rebel-match"/);
+  assert.match(main, /MIT license/);
+  assert.match(region(html, "header"), /<a href="\/work" aria-current="page"/);
+});
+
+test("the network scene is labelled, and says it is an illustration (R-WORK-4)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  assert.match(
+    main,
+    /<svg[^>]*role="img"[^>]*aria-label="An illustration of a network/,
+  );
+  assert.match(main, /An illustration, not real members or data\./);
+});
+
+test("the Rebel Match page shows the app's screens, marked as sample data (R-CONT-4, R-CONT-5)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  assert.match(main, /<img[^>]*alt="Three phone screens from Rebel Match/);
+  assert.match(main, /made-up sample members/);
+});
+
+test("the network scene stands still under reduced motion (R-WEB-4)", async () => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage({ reducedMotion: "reduce" });
+    await tab.goto(`${origin}/work/rebel-match`);
+    const running = await tab.evaluate(
+      () =>
+        document.getAnimations().filter((a) => a.playState === "running")
+          .length,
+    );
+    assert.equal(running, 0);
+  } finally {
+    await browser.close();
+  }
+});
+
 test("a profile with a LinkedIn address links it (R-ABOUT-4)", async () => {
   const { html } = await page("/about/andy");
   assert.match(
@@ -326,6 +384,7 @@ test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async
       "/journal/topic/software",
       "/journal/navigating-change-finding-your-voice-in-a-complex-world",
       "/about/ivo",
+      "/work/rebel-match",
       "/about/andy",
       "/no-such-page",
     ]) {
