@@ -43,14 +43,17 @@ title: Rebel Match
 year: 2026
 summary: "Peer matching for the Corporate Rebels network: bring an organizational challenge, get matched in a conference break."
 topics: [events, communities, open-source] # from: events, communities, organisations, open-source
-image: cover.jpg
+image: ./cover.png # beside the project; also the still for Work
 imageAlt: "…"
+scene: network # optional: an animated scene instead of the image (R-WORK-4)
 source: https://github.com/wrych/rebel-match # optional
 license: MIT # optional
 featured: true # at most one project is featured
-draft: false
+draft: false # R-CONT-3, not yet supported: until it is, a project with it fails the build
 ---
 ```
+
+The scenes are listed in `src/work.ts`; `network` is the one there is.
 
 ## A profile
 
