@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Cover from "../../components/Cover.astro";
+import NetworkScene from "../../components/NetworkScene.astro";
 import { allProjects, type Project } from "../../projects";
 import { PROJECT_TOPICS } from "../../work";
 
@@ -15,8 +16,17 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props as { project: Project };
 const { Content } = await render(project);
-const { title, year, summary, topics, image, imageAlt, source, license } =
-  project.data;
+const {
+  title,
+  year,
+  summary,
+  topics,
+  image,
+  imageAlt,
+  scene,
+  source,
+  license,
+} = project.data;
 ---
 
 <Base title={title} description={summary}>
@@ -37,11 +47,15 @@ const { title, year, summary, topics, image, imageAlt, source, license } =
       )}
     </header>
 
-    <Cover
-      src={image}
-      alt={imageAlt}
-      sizes="(min-width: 1240px) 1200px, 100vw"
-    />
+    {scene === "network" ? (
+      <NetworkScene />
+    ) : (
+      <Cover
+        src={image}
+        alt={imageAlt}
+        sizes="(min-width: 1240px) 1200px, 100vw"
+      />
+    )}
 
     <div class="body">
       <Content />

@@ -1,0 +1,199 @@
+---
+/* An illustration of people finding each other across a network: clusters of
+ * dots, the lines between them, and matches lighting up. It is drawn once, at
+ * build time, as SVG and CSS, so it needs no JavaScript, and under reduced
+ * motion it is a still picture (R-WEB-1, R-WEB-4). Nothing in it is real data. */
+import { BREATH_SECONDS, MATCH_CYCLE_SECONDS, networkScene } from "../scene";
+
+const LABEL =
+  "An illustration of a network: clusters of dots joined by thin lines, with golden lines lighting up where two people from different clusters are matched.";
+const { width, height, nodes, links, matches } = networkScene();
+---
+
+<figure
+  class="scene"
+  style={`--match-cycle: ${MATCH_CYCLE_SECONDS}s; --breath: ${BREATH_SECONDS}s`}
+>
+  <svg
+    viewBox={`0 0 ${width} ${height}`}
+    role="img"
+    aria-label={LABEL}
+    preserveAspectRatio="xMidYMid slice"
+  >
+    <defs>
+      <radialGradient id="scene-glow">
+        <stop offset="0%" class="glow-centre" />
+        <stop offset="100%" class="glow-edge" />
+      </radialGradient>
+    </defs>
+    <ellipse
+      cx={width / 2}
+      cy={height / 2}
+      rx={width / 2}
+      ry={height / 2}
+      fill="url(#scene-glow)"
+    />
+    <g class="links">
+      {links.map((link) => (
+        <line x1={link.x1} y1={link.y1} x2={link.x2} y2={link.y2} />
+      ))}
+    </g>
+    <g class="matches">
+      {matches.map((match) => (
+        <g style={`--delay: ${match.delay}s`}>
+          <line
+            class="match-line"
+            x1={match.x1}
+            y1={match.y1}
+            x2={match.x2}
+            y2={match.y2}
+          />
+          <line
+            class="pulse"
+            x1={match.x1}
+            y1={match.y1}
+            x2={match.x2}
+            y2={match.y2}
+            pathLength="100"
+          />
+          <circle class="spark" cx={match.x2} cy={match.y2} r="14" />
+        </g>
+      ))}
+    </g>
+    <g class="nodes">
+      {nodes.map((node) => (
+        <circle
+          class:list={[node.hub ? "hub" : "member"]}
+          cx={node.x}
+          cy={node.y}
+          r={node.r}
+          style={`--delay: ${node.delay}s`}
+        />
+      ))}
+    </g>
+  </svg>
+  <figcaption class="muted">
+    An illustration, not real members or data.
+  </figcaption>
+</figure>
+
+<style>
+  .scene {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    aspect-ratio: 2 / 1;
+    min-height: 260px;
+    border-radius: 24px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+
+  .glow-centre,
+  .glow-edge {
+    stop-color: var(--accent);
+    stop-opacity: 0.18;
+  }
+
+  .glow-edge {
+    stop-opacity: 0;
+  }
+
+  figcaption {
+    font-size: 13px;
+  }
+
+  .links line {
+    stroke: var(--text);
+    stroke-opacity: 0.12;
+    stroke-width: 1;
+  }
+
+  .match-line {
+    stroke: var(--accent);
+    stroke-opacity: 0.35;
+    stroke-width: 1.5;
+  }
+
+  .pulse {
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 8 200;
+    stroke-dashoffset: 8;
+    opacity: 0;
+    animation: travel var(--match-cycle) var(--delay) ease-in-out infinite;
+  }
+
+  .spark {
+    fill: var(--accent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: spark var(--match-cycle) var(--delay) ease-out infinite;
+  }
+
+  .member {
+    fill: var(--text);
+    fill-opacity: 0.7;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: breathe var(--breath) var(--delay) ease-in-out infinite;
+  }
+
+  .hub {
+    fill: var(--accent);
+  }
+
+  @keyframes travel {
+    0% {
+      stroke-dashoffset: 8;
+      opacity: 0;
+    }
+    4% {
+      opacity: 1;
+    }
+    26% {
+      opacity: 1;
+    }
+    30%,
+    100% {
+      stroke-dashoffset: -100;
+      opacity: 0;
+    }
+  }
+
+  @keyframes spark {
+    0%,
+    28% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    31% {
+      opacity: 0.55;
+    }
+    45%,
+    100% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(1);
+      fill-opacity: 0.55;
+    }
+    50% {
+      transform: scale(1.35);
+      fill-opacity: 0.95;
+    }
+  }
+</style>
