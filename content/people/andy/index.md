@@ -1,6 +1,6 @@
 ---
 name: Andy Moesch
-role: "Co-founder of xigo, responsible for software, data and this website, plus part of the hands-on work."
+role: "Co-founder of xigo."
 linkedin: https://www.linkedin.com/in/andymoesch
 ---
 
@@ -61,6 +61,10 @@ try things out rather than as a consulting business.
   (2012–2015), Product Engineer (2016–2017), and Product Owner for the system
   software framework (2017–2019), owning its roadmap and delivery together with
   the engineers.
+- **Volunteer and pro bono work, 2022–today:**
+  - coach for refugees in a programme that prepares them for jobs in IT
+    (since 2022)
+  - pro bono support through xigo
 
 ## Methods and qualifications
 

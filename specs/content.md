@@ -71,13 +71,13 @@ Languages. It names no employer, client, organisation or colleague.
 The page copy is in the design canvas. Facts on the site come from these
 sources only (constitution §A):
 
-| Fact                                        | Source                                                  |
-| ------------------------------------------- | ------------------------------------------------------- |
-| Founders, bios, LinkedIn profiles           | xigo.ch "about xigo", November 2026                     |
-| Contact address `info@xigo.ch`              | xigo.ch "services"                                      |
-| Values                                      | xigo.ch home page                                       |
-| The seven articles, their dates and authors | xigo.ch "articles", and the authors WordPress records   |
-| Rebel Match                                 | its repository's README and license                     |
-| Living agreements, consent workshops        | xigo.ch "services"                                      |
-| Ivo's profile                               | his master file, exported and approved by him, Nov 2026 |
-| Andy's profile                              | his CVs, motivation letters and diplomas, Feb 2026      |
+| Fact                                        | Source                                                                                     |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Founders, bios, LinkedIn profiles           | xigo.ch "about xigo", November 2026                                                        |
+| Contact address `info@xigo.ch`              | xigo.ch "services"                                                                         |
+| Values                                      | xigo.ch home page                                                                          |
+| The seven articles, their dates and authors | xigo.ch "articles", and the authors WordPress records                                      |
+| Rebel Match                                 | its repository's README and license                                                        |
+| Living agreements, consent workshops        | xigo.ch "services"                                                                         |
+| Ivo's profile                               | his master file, exported and approved by him, Nov 2026                                    |
+| Andy's profile                              | his CVs, letters and diplomas (Feb 2026); his own word on role and volunteering (Nov 2026) |
