@@ -112,6 +112,7 @@ test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)
     "/journal/minesweeping-agile",
     "/about/ivo",
     "/work/rebel-match",
+    "/about/andy",
   ]) {
     const { html } = await page(path);
     assert.doesNotMatch(html, /<script/);
@@ -267,26 +268,37 @@ test("About links every founder's profile (R-ABOUT-4)", async () => {
   }
 });
 
-test("a profile shows name, role and its sections, under About (R-ABOUT-4, R-NAV-2)", async () => {
-  const { status, html } = await page("/about/ivo");
-  assert.equal(status, 200);
-  const main = region(html, "main");
-  assert.match(main, /<h1[^>]*>Ivo Pejakovic<\/h1>/);
-  assert.match(main, /Co-founder of xigo/);
-  const headings = [...main.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(
-    (match) => match[1],
-  );
-  assert.deepEqual(headings, [
-    "Short bio",
-    "What I can help with",
-    "Experience",
-    "Methods and qualifications",
-    "Tools and technology",
-    "Languages",
-  ]);
-  assert.match(region(html, "header"), /<a href="\/about" aria-current="page"/);
-  assert.match(region(html, "head"), /<title>Ivo Pejakovic — xigo<\/title>/);
-});
+for (const [slug, name] of [
+  ["ivo", "Ivo Pejakovic"],
+  ["andy", "Andy Moesch"],
+]) {
+  test(`${name}'s profile shows name, role and its sections, under About (R-ABOUT-4, R-NAV-2)`, async () => {
+    const { status, html } = await page(`/about/${slug}`);
+    assert.equal(status, 200);
+    const main = region(html, "main");
+    assert.match(main, new RegExp(`<h1[^>]*>${name}</h1>`));
+    assert.match(main, /Co-founder of xigo/);
+    const headings = [...main.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(
+      (match) => match[1],
+    );
+    assert.deepEqual(headings, [
+      "Short bio",
+      "What I can help with",
+      "Experience",
+      "Methods and qualifications",
+      "Tools and technology",
+      "Languages",
+    ]);
+    assert.match(
+      region(html, "header"),
+      /<a href="\/about" aria-current="page"/,
+    );
+    assert.match(
+      region(html, "head"),
+      new RegExp(`<title>${name} — xigo</title>`),
+    );
+  });
+}
 
 test("a profile without a LinkedIn address shows no LinkedIn link (R-ABOUT-4)", async () => {
   const { html } = await page("/about/ivo");
@@ -350,6 +362,14 @@ test("the network scene stands still under reduced motion (R-WEB-4)", async () =
   }
 });
 
+test("a profile with a LinkedIn address links it (R-ABOUT-4)", async () => {
+  const { html } = await page("/about/andy");
+  assert.match(
+    region(html, "main"),
+    /<a class="link" href="https:\/\/www\.linkedin\.com\/in\/andymoesch"/,
+  );
+});
+
 const PHONE = { width: 360, height: 740 };
 
 test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async () => {
@@ -365,6 +385,7 @@ test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async
       "/journal/navigating-change-finding-your-voice-in-a-complex-world",
       "/about/ivo",
       "/work/rebel-match",
+      "/about/andy",
       "/no-such-page",
     ]) {
       await tab.goto(`${origin}${path}`);
