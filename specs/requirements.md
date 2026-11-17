@@ -39,6 +39,10 @@ xigo.ch, as served to a visitor.
   page (`/work/topic/<topic>`) with the filtered list (ADR 0008).
 - **R-WORK-3** A project page shows the project's text and, where it has one,
   a link to its source code and its license.
+- **R-WORK-4** A project page may open with an animated scene in place of its
+  image. The scene is drawn in SVG and CSS, so it needs no JavaScript; it has a
+  text label, says that it is an illustration and not real data, and stands
+  still under reduced motion (R-WEB-4). Its image stays the still used on Work.
 
 ## Journal (R-JOUR)
 

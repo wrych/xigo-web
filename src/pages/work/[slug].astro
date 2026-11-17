@@ -1,0 +1,234 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Cover from "../../components/Cover.astro";
+import NetworkScene from "../../components/NetworkScene.astro";
+import { allProjects, type Project } from "../../projects";
+import { PROJECT_TOPICS } from "../../work";
+
+export async function getStaticPaths() {
+  const projects = await allProjects();
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props as { project: Project };
+const { Content } = await render(project);
+const {
+  title,
+  year,
+  summary,
+  topics,
+  image,
+  imageAlt,
+  scene,
+  figures,
+  source,
+  license,
+} = project.data;
+---
+
+<Base title={title} description={summary}>
+  <article>
+    <header>
+      <p class="label">
+        <a href="/work">Work</a> · {year} ·{" "}
+        {topics.map((topic) => PROJECT_TOPICS[topic]).join(" · ")}
+      </p>
+      <h1>{title}</h1>
+      <p class="summary muted">{summary}</p>
+      {source && (
+        <p class="actions">
+          <a class="button" href={source}>
+            See the source code
+          </a>
+        </p>
+      )}
+    </header>
+
+    {scene === "network" ? (
+      <NetworkScene />
+    ) : (
+      <Cover
+        src={image}
+        alt={imageAlt}
+        sizes="(min-width: 1240px) 1200px, 100vw"
+      />
+    )}
+
+    <div class="body">
+      <Content />
+    </div>
+
+    {figures.map((figure) => (
+      <figure class="figure">
+        <Cover
+          src={figure.image}
+          alt={figure.alt}
+          sizes="(min-width: 800px) 760px, 100vw"
+        />
+        {figure.caption && (
+          <figcaption class="muted">{figure.caption}</figcaption>
+        )}
+      </figure>
+    ))}
+
+    {(source || license) && (
+      <aside class="source">
+        <p class="label">{source ? "Source code" : "License"}</p>
+        {source && <a href={source}>{source.replace(/^https:\/\//, "")}</a>}
+        {license && <p class="muted">Released under the {license} license.</p>}
+      </aside>
+    )}
+
+    <p class="back">
+      <a href="/work">All work</a>
+    </p>
+  </article>
+</Base>
+
+<style>
+  article {
+    padding: 64px 0 128px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 820px;
+    margin-bottom: 56px;
+  }
+
+  header p {
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(48px, 8vw, 112px);
+    letter-spacing: -0.05em;
+  }
+
+  .summary {
+    font-size: 20px;
+    max-width: 620px;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    font-size: 14px;
+  }
+
+  .button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 28px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--ground);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .button:hover,
+  .button:focus-visible {
+    color: var(--ground);
+    outline-color: var(--text);
+  }
+
+  .body {
+    max-width: 760px;
+    margin: 80px auto 0;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  .body :global(h2) {
+    font-size: clamp(28px, 3.5vw, 40px);
+    margin: 72px 0 20px;
+  }
+
+  .body :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .body :global(ul),
+  .body :global(ol) {
+    padding-left: 1.2em;
+  }
+
+  .body :global(li) {
+    margin-bottom: 12px;
+  }
+
+  .body :global(li::marker) {
+    color: var(--accent);
+  }
+
+  .body :global(strong) {
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .body :global(blockquote) {
+    margin: 40px 0;
+    padding: 0 0 0 24px;
+    border-left: 2px solid var(--accent);
+    font-family: var(--font-display);
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+
+  .body :global(a),
+  .source a,
+  .label a,
+  .back a {
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .figure {
+    max-width: 760px;
+    margin: 56px auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .figure figcaption {
+    font-size: 14px;
+  }
+
+  .source {
+    max-width: 760px;
+    margin: 80px auto 0;
+    padding: 32px;
+    border: 1px solid var(--line-strong);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-wrap: anywhere;
+  }
+
+  .source p {
+    margin: 0;
+  }
+
+  .source a {
+    font-family: var(--font-display);
+    font-size: 22px;
+    align-self: flex-start;
+  }
+
+  .back {
+    max-width: 760px;
+    margin: 64px auto 0;
+  }
+</style>
