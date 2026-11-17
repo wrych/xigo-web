@@ -80,3 +80,4 @@ sources only (constitution §A):
 | Rebel Match                                 | its repository's README and license                     |
 | Living agreements, consent workshops        | xigo.ch "services"                                      |
 | Ivo's profile                               | his master file, exported and approved by him, Nov 2026 |
+| Andy's profile                              | his CVs, motivation letters and diplomas, Feb 2026      |
