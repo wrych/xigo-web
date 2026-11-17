@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { workOrder } from "../src/work.ts";
+import { showcase, workOrder } from "../src/work.ts";
 import {
   MATCH_CYCLE_SECONDS,
   SCENE_HEIGHT,
@@ -67,4 +67,22 @@ test("one loop of the matches holds every match", () => {
   const { matches } = networkScene();
   const last = Math.max(...matches.map((match) => match.delay));
   assert.ok(last < MATCH_CYCLE_SECONDS);
+});
+
+test("Home shows the featured project and the next two of Work's order (R-HOME-3)", () => {
+  const { lead, more } = showcase([
+    project("old", 2020),
+    project("new", 2026),
+    project("lead", 2023, true),
+    project("mid", 2024),
+  ]);
+  assert.equal(lead.id, "lead");
+  assert.deepEqual(
+    more.map((p) => p.id),
+    ["new", "mid"],
+  );
+});
+
+test("Home shows nothing when there is no project (R-HOME-3)", () => {
+  assert.deepEqual(showcase([]), { lead: undefined, more: [] });
 });

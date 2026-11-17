@@ -1,10 +1,17 @@
 ---
 import Base from "../layouts/Base.astro";
+import Cover from "../components/Cover.astro";
 import PostList from "../components/PostList.astro";
 import { latest } from "../journal";
 import { allPosts } from "../posts";
+import { allProjects } from "../projects";
+import { PROJECT_TOPICS, showcase } from "../work";
 
 const newest = latest(await allPosts());
+const { lead, more } = showcase(await allProjects());
+const topics = (project: {
+  data: { topics: (keyof typeof PROJECT_TOPICS)[] };
+}) => project.data.topics.map((topic) => PROJECT_TOPICS[topic]).join(" · ");
 ---
 
 <Base
@@ -31,8 +38,54 @@ const newest = latest(await allPosts());
     </div>
   </section>
 
+  {lead && (
+    <section class="work" aria-labelledby="work-heading">
+      <div class="section-head">
+        <h2 id="work-heading">Our work</h2>
+        <a class="all" href="/work">
+          All projects →
+        </a>
+      </div>
+      <a class="project-lead" href={`/work/${lead.id}`}>
+        <Cover
+          src={lead.data.image}
+          alt={lead.data.imageAlt}
+          sizes="(min-width: 1000px) 640px, 100vw"
+        />
+        <span class="text">
+          <span class="label">
+            {lead.data.featured && <span class="dot">Featured · </span>}
+            {lead.data.year} · {topics(lead)}
+          </span>
+          <span class="title">{lead.data.title}</span>
+          <span class="muted">{lead.data.summary}</span>
+        </span>
+      </a>
+      {more.length > 0 && (
+        <ul class="more">
+          {more.map((project) => (
+            <li>
+              <a href={`/work/${project.id}`}>
+                <Cover
+                  src={project.data.image}
+                  alt={project.data.imageAlt}
+                  sizes="(min-width: 1000px) 560px, 100vw"
+                />
+                <span class="label">
+                  {project.data.year} · {topics(project)}
+                </span>
+                <span class="title">{project.data.title}</span>
+                <span class="muted">{project.data.summary}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )}
+
   <section class="journal" aria-labelledby="journal-heading">
-    <div class="journal-head">
+    <div class="section-head">
       <h2 id="journal-heading">Journal</h2>
       <a class="all" href="/journal">
         All posts →
@@ -94,6 +147,7 @@ const newest = latest(await allPosts());
     font-size: 15px;
   }
 
+  .work,
   .journal {
     display: flex;
     flex-direction: column;
@@ -102,7 +156,7 @@ const newest = latest(await allPosts());
     border-top: 1px solid var(--line);
   }
 
-  .journal-head {
+  .section-head {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -110,7 +164,7 @@ const newest = latest(await allPosts());
     gap: 16px;
   }
 
-  .journal-head h2 {
+  .section-head h2 {
     font-size: clamp(36px, 4.5vw, 56px);
   }
 
@@ -118,6 +172,56 @@ const newest = latest(await allPosts());
     font-size: 15px;
     border-bottom: 1px solid var(--accent);
     padding-bottom: 4px;
+  }
+
+  .project-lead {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 32px 48px;
+    align-items: center;
+  }
+
+  .text,
+  .more a {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .text .label,
+  .more .label {
+    margin: 0;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .project-lead .title {
+    font-size: clamp(36px, 5vw, 64px);
+  }
+
+  .more {
+    list-style: none;
+    margin: 0;
+    padding: 48px 0 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+    gap: 48px;
+  }
+
+  .more .title {
+    font-size: clamp(28px, 3vw, 36px);
+  }
+
+  .project-lead:hover .title,
+  .project-lead:focus-visible .title,
+  .more a:hover .title,
+  .more a:focus-visible .title {
+    color: var(--accent);
   }
 
   .contact {
