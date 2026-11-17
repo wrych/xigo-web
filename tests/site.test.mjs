@@ -416,3 +416,23 @@ test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async
     await browser.close();
   }
 });
+
+test("every page names the site's icon, and the server serves it (R-WEB-7)", async () => {
+  const head = region((await page("/journal")).html, "head");
+  const icons = {
+    "/favicon.svg": "image/svg+xml",
+    "/favicon.ico": "image/",
+    "/apple-touch-icon.png": "image/png",
+  };
+  for (const [href, type] of Object.entries(icons)) {
+    assert.match(
+      head,
+      new RegExp(`rel="(icon|apple-touch-icon)"[^>]*href="${href}"`),
+    );
+    const response = await fetch(`${origin}${href}`);
+    assert.equal(response.status, 200, href);
+    assert.ok(response.headers.get("content-type").startsWith(type), href);
+  }
+  const svg = await (await fetch(`${origin}/favicon.svg`)).text();
+  assert.match(svg, /fill="#e6c79c"/, "the dot is the accent gold");
+});

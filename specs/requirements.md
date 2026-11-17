@@ -99,6 +99,9 @@ xigo.ch, as served to a visitor.
   image for sharing.
 - **R-WEB-6** The site sets no cookie, loads no third-party script, and
   collects no personal data (constitution §C). Fonts are served by the site.
+- **R-WEB-7** Every page names the site's icon: the wordmark's x and its gold
+  dot, as SVG, with `/favicon.ico` and an Apple touch icon for browsers that
+  do not take SVG.
 
 ## 3D (R-3D)
 
