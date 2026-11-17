@@ -32,3 +32,16 @@ export function workOrder<T extends Project>(projects: readonly T[]): T[] {
     .sort((a, b) => b.year - a.year);
   return [...featured, ...rest];
 }
+
+/** How many projects Home shows: the featured one and two more (R-HOME-3). */
+export const HOME_PROJECT_COUNT = 3;
+
+/** Home's projects: the first of Work's order shown large, then the next
+ * ones (R-HOME-3). */
+export function showcase<T extends Project>(
+  projects: readonly T[],
+  count = HOME_PROJECT_COUNT,
+): { lead: T | undefined; more: T[] } {
+  const [lead, ...more] = workOrder(projects).slice(0, count);
+  return { lead, more };
+}
