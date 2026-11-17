@@ -8,6 +8,9 @@ export const PROJECT_TOPICS = {
 
 export type ProjectTopic = keyof typeof PROJECT_TOPICS;
 
+/** The animated scenes a project page may open with instead of its image. */
+export const SCENES = ["network"] as const;
+
 interface Project {
   id?: string;
   year: number;

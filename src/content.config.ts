@@ -2,7 +2,7 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { TOPICS, type Topic } from "./journal";
-import { PROJECT_TOPICS, type ProjectTopic } from "./work";
+import { PROJECT_TOPICS, SCENES, type ProjectTopic } from "./work";
 
 const AUTHORS = ["Ivo Pejakovic", "Andy Moesch"] as const;
 
@@ -77,6 +77,7 @@ const work = defineCollection({
           .min(1),
         image: image(),
         imageAlt: z.string().min(1),
+        scene: z.enum(SCENES).optional(),
         source: z.url().optional(),
         license: z.string().min(1).optional(),
         featured: z.boolean().default(false),

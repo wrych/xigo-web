@@ -1,4 +1,5 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import { createServer } from "node:net";
 import {
   cpSync,
   mkdirSync,
@@ -48,7 +49,7 @@ export const FIXTURES = {
 };
 
 /** Builds the site with `fixtures` as its projects; returns a reader of the
- * built pages by address. */
+ * built pages by address, whose `dir` is the built copy. */
 export function buildWith(fixtures = FIXTURES) {
   const dir = mkdtempSync(join(tmpdir(), "xigo-work-"));
   for (const path of [
@@ -74,11 +75,43 @@ export function buildWith(fixtures = FIXTURES) {
     encoding: "utf8",
   });
   if (result.status !== 0) throw new Error(result.stdout + result.stderr);
-  return (path) =>
+  const read = (path) =>
     readFileSync(join(dir, "dist/client", path, "index.html"), "utf8");
+  read.dir = dir;
+  return read;
 }
 
 /** The part of `html` inside its <main>. */
 export function main(html) {
   return html.slice(html.indexOf("<main"), html.indexOf("</main>"));
+}
+
+function freePort() {
+  return new Promise((resolve) => {
+    const probe = createServer().listen(0, "127.0.0.1", () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+/** Starts the built copy in `dir`; resolves to its origin and a stop. */
+export async function serve(dir) {
+  const port = await freePort();
+  const origin = `http://127.0.0.1:${port}`;
+  const server = spawn("node", ["dist/server/entry.mjs"], {
+    cwd: dir,
+    env: { ...process.env, HOST: "127.0.0.1", PORT: String(port) },
+    stdio: "ignore",
+  });
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    try {
+      await fetch(origin);
+      return { origin, stop: () => server.kill() };
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+  }
+  server.kill();
+  throw new Error(`${origin} did not answer`);
 }
