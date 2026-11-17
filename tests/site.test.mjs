@@ -329,6 +329,14 @@ test("a project page shows its text, its source code and its license (R-WORK-3)"
   assert.match(region(html, "header"), /<a href="\/work" aria-current="page"/);
 });
 
+test("the Rebel Match page links Pascal's homepage", async () => {
+  const { html } = await page("/work/rebel-match");
+  assert.match(
+    region(html, "main"),
+    /<a href="https:\/\/transformation-architects\.ch\/"[^>]*>Transformation Architects<\/a>/,
+  );
+});
+
 test("the network scene is labelled, and says it is an illustration (R-WORK-4)", async () => {
   const { html } = await page("/work/rebel-match");
   const main = region(html, "main");
