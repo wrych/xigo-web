@@ -46,6 +46,10 @@ topics: [events, communities, open-source] # from: events, communities, organisa
 image: ./cover.png # beside the project; also the still for Work
 imageAlt: "…"
 scene: network # optional: an animated scene instead of the image (R-WORK-4)
+figures: # optional: images shown after the text, beside the project
+  - image: ./screens.png
+    alt: "…"
+    caption: "…" # optional
 source: https://github.com/wrych/rebel-match # optional
 license: MIT # optional
 featured: true # at most one project is featured
