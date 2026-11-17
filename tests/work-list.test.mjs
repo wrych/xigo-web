@@ -12,7 +12,12 @@ test("Work lists every project, featured first, then newest first (R-WORK-1)", (
   const slugs = [...html.matchAll(/href="\/work\/([a-z0-9-]+)"/g)].map(
     (match) => match[1],
   );
-  assert.deepEqual(slugs, ["featured", "license-only", "with-source"]);
+  assert.deepEqual(slugs, [
+    "featured",
+    "license-only",
+    "with-source",
+    "with-figure",
+  ]);
 });
 
 test("each project on Work shows its year, summary, topics and image (R-WORK-1)", () => {

@@ -30,3 +30,16 @@ test("a project without source or license shows neither (R-WORK-3)", () => {
   const html = main(read("work/featured"));
   assert.doesNotMatch(html, /Source code|license/);
 });
+
+test("a project's figures come resized, with a fallback, alt text and caption (R-CONT-4, R-CONT-5)", () => {
+  const html = main(read("work/with-figure"));
+  const figure = /<figure class="figure[\s\S]*?<\/figure>/.exec(html)[0];
+  const source = /<source[^>]*>/.exec(figure)[0];
+  assert.match(source, /type="image\/webp"/);
+  assert.match(source, /srcset="[^"]*480w[^"]*960w/);
+  assert.match(
+    figure,
+    /<img[^>]*src="\/_astro\/[^"]+\.jpg"[^>]*alt="A figure"/,
+  );
+  assert.match(figure, /<figcaption[^>]*>A caption<\/figcaption>/);
+});

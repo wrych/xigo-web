@@ -78,6 +78,17 @@ const work = defineCollection({
         image: image(),
         imageAlt: z.string().min(1),
         scene: z.enum(SCENES).optional(),
+        figures: z
+          .array(
+            z
+              .object({
+                image: image(),
+                alt: z.string().min(1),
+                caption: z.string().min(1).optional(),
+              })
+              .strict(),
+          )
+          .default([]),
         source: z.url().optional(),
         license: z.string().min(1).optional(),
         featured: z.boolean().default(false),

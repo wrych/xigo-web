@@ -46,6 +46,13 @@ export const FIXTURES = {
     license: "MIT",
   },
   featured: { ...base, title: '"Featured"', year: 2020, featured: true },
+  "with-figure": {
+    ...base,
+    title: '"With figure"',
+    year: 2019,
+    figures:
+      '\n  - image: ./cover.png\n    alt: "A figure"\n    caption: "A caption"',
+  },
 };
 
 /** Builds the site with `fixtures` as its projects; returns a reader of the
