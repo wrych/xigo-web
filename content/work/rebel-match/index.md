@@ -52,16 +52,19 @@ exchanged. Until then, nobody can see anyone's contact details.
 ## Made for a moment
 
 Rebel Match was built for the Corporate Rebels summit on 8 November 2026,
-where its beta launched. Attendees scan a QR code with their phone, and the
-aim is to get from that scan to being set up in **under two minutes** — so the
-break is spent meeting people, not filling in forms.
+where its beta launched. Attendees scanned a QR code with their phone, and the
+aim was to get from that scan to being set up in **under two minutes** — so the
+break could be spent meeting people, not filling in forms. The beta has since
+closed, and Rebel Match now runs in production.
 
 ## Who made it
 
-Pascal Dulex brought the idea, the design and the community; Andy Moesch the
-engineering; Ivo Pejakovic the user experience and the testing. Around them
-are the Rebel Match contributors and the Corporate Rebels community, who bring
-the challenges, the experience and the connections.
+Pascal Dulex of
+[Transformation Architects](https://transformation-architects.ch/) brought the
+idea, the design and the community; Andy Moesch the engineering; Ivo Pejakovic
+the user experience and the testing. Around them are the Rebel Match
+contributors and the Corporate Rebels community, who bring the challenges, the
+experience and the connections.
 
 ## Open for everyone
 
