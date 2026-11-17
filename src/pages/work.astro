@@ -1,12 +1,79 @@
 ---
 import Base from "../layouts/Base.astro";
+import Cover from "../components/Cover.astro";
 import PageIntro from "../components/PageIntro.astro";
+import { allProjects } from "../projects";
+import { PROJECT_TOPICS } from "../work";
 
 const title = "Work";
 const intro =
   "What we have built for events, communities and organisations — pro bono, and open source wherever we can.";
+const projects = await allProjects();
 ---
 
 <Base title={title} description={intro}>
   <PageIntro title={title} intro={intro} />
+
+  <ul class="projects">
+    {projects.map((project) => (
+      <li class:list={{ featured: project.data.featured }}>
+        <a href={`/work/${project.id}`}>
+          <Cover
+            src={project.data.image}
+            alt={project.data.imageAlt}
+            sizes="(min-width: 1000px) 640px, 100vw"
+          />
+          <span class="text">
+            <span class="label">
+              {project.data.featured && <span class="dot">Featured · </span>}
+              {project.data.year} ·{" "}
+              {project.data.topics
+                .map((topic) => PROJECT_TOPICS[topic])
+                .join(" · ")}
+            </span>
+            <span class="title">{project.data.title}</span>
+            <span class="muted">{project.data.summary}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
 </Base>
+
+<style>
+  .projects {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 128px;
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+  }
+
+  li a {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 32px 48px;
+    align-items: center;
+    padding-top: 48px;
+    border-top: 1px solid var(--line);
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  li a:hover .title,
+  li a:focus-visible .title {
+    color: var(--accent);
+  }
+</style>

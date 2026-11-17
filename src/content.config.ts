@@ -2,6 +2,7 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { TOPICS, type Topic } from "./journal";
+import { PROJECT_TOPICS, type ProjectTopic } from "./work";
 
 const AUTHORS = ["Ivo Pejakovic", "Andy Moesch"] as const;
 
@@ -55,4 +56,32 @@ const people = defineCollection({
     .strict(),
 });
 
-export const collections = { journal, people };
+const work = defineCollection({
+  loader: glob({
+    pattern: "*/index.md",
+    base: "./content/work",
+    generateId: ({ entry }) => entry.split("/")[0],
+  }),
+  schema: ({ image }) =>
+    z
+      .object({
+        title: z.string().min(1),
+        year: z.number().int(),
+        summary: z.string().min(1),
+        topics: z
+          .array(
+            z.enum(
+              Object.keys(PROJECT_TOPICS) as [ProjectTopic, ...ProjectTopic[]],
+            ),
+          )
+          .min(1),
+        image: image(),
+        imageAlt: z.string().min(1),
+        source: z.url().optional(),
+        license: z.string().min(1).optional(),
+        featured: z.boolean().default(false),
+      })
+      .strict(),
+});
+
+export const collections = { journal, people, work };
