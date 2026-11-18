@@ -258,6 +258,74 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
   ]);
 });
 
+test("each home post shows author and reading time, the next two a cover (R-HOME-4)", async () => {
+  const { html } = await page("/");
+  const journal = html.slice(html.indexOf('id="journal-heading"'));
+  const metas = [
+    ...journal.matchAll(
+      /Ivo Pejakovic · <time datetime="[0-9-]+"[^>]*>[^<]+<\/time> · \d+ min/g,
+    ),
+  ];
+  assert.equal(metas.length, 3);
+  assert.equal(
+    [...journal.slice(0, journal.indexOf('id="contact"')).matchAll(/<img\b/g)]
+      .length,
+    2,
+  );
+});
+
+test("a home post without a cover shows its excerpt in the cover's place (R-HOME-4)", async () => {
+  const { html } = await page("/");
+  assert.match(
+    html,
+    /class="text-cover"[^>]*>[\s\S]*?class="line"[^>]*>Consent is not consensus\.</,
+  );
+});
+
+test("Home's statement stands beside a decorative network (R-HOME-6)", async () => {
+  const { html } = await page("/");
+  const hero = html.slice(
+    html.indexOf('class="hero'),
+    html.indexOf('id="work-heading"'),
+  );
+  assert.match(
+    hero,
+    /<svg[^>]*class="hero-network[^"]*"[^>]*aria-hidden="true"/,
+  );
+});
+
+const heroAnimations = async (options) => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage(options);
+    await tab.goto(`${origin}/`);
+    return await tab.evaluate(() => ({
+      running: document
+        .getAnimations()
+        .filter((animation) => animation.playState === "running").length,
+      shown:
+        getComputedStyle(document.querySelector(".hero-network")).display !==
+        "none",
+    }));
+  } finally {
+    await browser.close();
+  }
+};
+
+test("the hero network breathes, stands still under reduced motion, and leaves phones (R-HOME-6, R-WEB-4)", async () => {
+  const moving = await heroAnimations({ reducedMotion: "no-preference" });
+  assert.ok(moving.running > 0 && moving.shown);
+  const still = await heroAnimations({ reducedMotion: "reduce" });
+  assert.equal(still.running, 0);
+  const phone = await heroAnimations({ viewport: { width: 360, height: 800 } });
+  assert.equal(phone.shown, false);
+});
+
+test("the contact heading keeps the space between its two sentences (R-HOME-5)", async () => {
+  const { html } = await page("/");
+  assert.match(html, /foundation\? <span/);
+});
+
 const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));
 
 test("About links every founder's profile (R-ABOUT-4)", async () => {

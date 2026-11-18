@@ -152,3 +152,49 @@ export function networkScene(seed = SCENE_SEED): Scene {
 
   return { width: SCENE_WIDTH, height: SCENE_HEIGHT, nodes, links, matches };
 }
+
+/** The network beside Home's opening statement (R-HOME-6): people scattered
+ * over a disc, each joined to those near them, every few a golden hub.
+ * Seeded like the project scene, so every build draws the same picture. */
+export const HERO_SIZE = 400;
+export const HERO_SEED = 7;
+const HERO_NODES = 46;
+const HERO_RADIUS = 170;
+const HERO_LINK_DISTANCE = 62;
+const HERO_HUB_EVERY = 6;
+const HERO_HUB_RADIUS = 3.4;
+const HERO_MEMBER_RADIUS = 1.8;
+
+export interface HeroScene {
+  size: number;
+  nodes: SceneNode[];
+  links: SceneLine[];
+}
+
+export function heroScene(seed = HERO_SEED): HeroScene {
+  const random = seeded(seed);
+  const centre = HERO_SIZE / 2;
+  const nodes: SceneNode[] = [];
+  for (let index = 0; index < HERO_NODES; index += 1) {
+    const angle = random() * 2 * Math.PI;
+    const distance = Math.sqrt(random()) * HERO_RADIUS;
+    const hub = index % HERO_HUB_EVERY === 0;
+    nodes.push({
+      x: round(centre + Math.cos(angle) * distance),
+      y: round(centre + Math.sin(angle) * distance),
+      r: hub ? HERO_HUB_RADIUS : HERO_MEMBER_RADIUS,
+      hub,
+      cluster: 0,
+      delay: round(-random() * BREATH_SECONDS),
+    });
+  }
+  const links: SceneLine[] = [];
+  nodes.forEach((a, i) => {
+    for (const b of nodes.slice(i + 1)) {
+      if (Math.hypot(a.x - b.x, a.y - b.y) < HERO_LINK_DISTANCE) {
+        links.push(line(a, b));
+      }
+    }
+  });
+  return { size: HERO_SIZE, nodes, links };
+}
