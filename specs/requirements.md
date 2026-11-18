@@ -26,10 +26,16 @@ xigo.ch, as served to a visitor.
   organisations and foundations; free and open.
 - **R-HOME-3** Home shows the featured project large and two more projects,
   each linking to its page.
-- **R-HOME-4** Home lists the three newest posts, newest first, with date,
-  title and topic, each linking to its page.
+- **R-HOME-4** Home shows the three newest posts, each linking to its page:
+  the newest large, with its cover and excerpt, and the next two beside it,
+  with their covers. Each shows date, title, topic, author and reading time. A
+  post without a cover shows a line of its excerpt in the cover's place.
 - **R-HOME-5** Home ends with a contact section whose address is
   `info@xigo.ch`, as a `mailto:` link.
+- **R-HOME-6** Home's opening statement stands beside an illustration of a
+  network, drawn in SVG and CSS at build time, so it needs no JavaScript. It is
+  decorative: hidden from assistive technology, left out at phone width, and
+  still under reduced motion (R-WEB-4).
 
 ## Work (R-WORK)
 
