@@ -258,6 +258,11 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
   ]);
 });
 
+test("the contact heading keeps the space between its two sentences (R-HOME-5)", async () => {
+  const { html } = await page("/");
+  assert.match(html, /foundation\? <span/);
+});
+
 const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));
 
 test("About links every founder's profile (R-ABOUT-4)", async () => {
