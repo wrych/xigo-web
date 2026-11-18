@@ -102,6 +102,11 @@ test("the contact section mails info@xigo.ch (R-HOME-5)", async () => {
   assert.match(html, /id="contact"[\s\S]*href="mailto:info@xigo\.ch"/);
 });
 
+test("the contact heading keeps the space between its two sentences (R-HOME-5)", async () => {
+  const { html } = await page("/");
+  assert.match(html, /foundation\? <span/);
+});
+
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
   for (const path of [
     "/",
@@ -256,11 +261,6 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
     "navigating-change-finding-your-voice-in-a-complex-world",
     "the-tensions-of-power-and-autonomy-in-self-organization-my-perspective",
   ]);
-});
-
-test("the contact heading keeps the space between its two sentences (R-HOME-5)", async () => {
-  const { html } = await page("/");
-  assert.match(html, /foundation\? <span/);
 });
 
 const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));
