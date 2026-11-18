@@ -1,7 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import Cover from "../components/Cover.astro";
-import PostList from "../components/PostList.astro";
+import HomeJournal from "../components/HomeJournal.astro";
 import { latest } from "../journal";
 import { allPosts } from "../posts";
 import { allProjects } from "../projects";
@@ -91,7 +91,7 @@ const topics = (project: {
         All posts →
       </a>
     </div>
-    <PostList posts={newest} excerpts={false} />
+    <HomeJournal posts={newest} />
   </section>
 
   <section id="contact" class="contact">

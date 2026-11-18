@@ -1,0 +1,233 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Cover from "./Cover.astro";
+import { TOPICS, formatDate, readingMinutes } from "../journal";
+
+interface Props {
+  posts: CollectionEntry<"journal">[];
+}
+
+const [lead, ...side] = Astro.props.posts;
+const isoDate = (post: CollectionEntry<"journal">) =>
+  post.data.date.toISOString().slice(0, 10);
+const minutes = (post: CollectionEntry<"journal">) =>
+  readingMinutes(post.body ?? "");
+---
+
+{lead && (
+  <div class="journal-grid">
+    <a class="lead" href={`/journal/${lead.id}`}>
+      {lead.data.cover && lead.data.coverAlt ? (
+        <Cover
+          src={lead.data.cover}
+          alt={lead.data.coverAlt}
+          sizes="(min-width: 1000px) 640px, 100vw"
+        />
+      ) : (
+        <span class="text-cover">
+          <span class="mark" aria-hidden="true">
+            “
+          </span>
+          <span class="line">{lead.data.excerpt}</span>
+        </span>
+      )}
+      <span class="topic">{TOPICS[lead.data.topic]}</span>
+      <span class="title">{lead.data.title}</span>
+      {lead.data.cover && <span class="muted">{lead.data.excerpt}</span>}
+      <span class="meta">
+        {lead.data.author} ·{" "}
+        <time datetime={isoDate(lead)}>{formatDate(lead.data.date)}</time> ·{" "}
+        {minutes(lead)} min read
+      </span>
+    </a>
+    {side.length > 0 && (
+      <ul class="side">
+        {side.map((post) => (
+          <li>
+            <a href={`/journal/${post.id}`}>
+              {post.data.cover && post.data.coverAlt ? (
+                <Cover
+                  src={post.data.cover}
+                  alt={post.data.coverAlt}
+                  sizes="(min-width: 1000px) 200px, 100vw"
+                />
+              ) : (
+                <span class="text-cover small" aria-hidden="true">
+                  <span class="mark">“</span>
+                  <span class="line">{post.data.excerpt}</span>
+                </span>
+              )}
+              <span class="text">
+                <span class="label">{TOPICS[post.data.topic]}</span>
+                <span class="title">{post.data.title}</span>
+                <span class="meta">
+                  {post.data.author} ·{" "}
+                  <time datetime={isoDate(post)}>
+                    {formatDate(post.data.date)}
+                  </time>{" "}
+                  · {minutes(post)} min
+                </span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)}
+
+<style>
+  .journal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+    gap: 48px;
+    align-items: start;
+  }
+
+  .lead {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .lead :global(.cover),
+  .lead .text-cover {
+    width: 100%;
+  }
+
+  .lead :global(.cover img),
+  .text-cover {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .text-cover {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: clamp(20px, 4vw, 32px);
+    border-radius: 24px;
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(
+        120% 90% at 85% 10%,
+        color-mix(in srgb, var(--accent) 22%, transparent),
+        transparent 55%
+      ),
+      linear-gradient(160deg, var(--surface), var(--ground));
+  }
+
+  .text-cover .mark {
+    position: absolute;
+    top: -0.1em;
+    left: 0.12em;
+    font-family: var(--font-display);
+    font-size: clamp(120px, 16vw, 200px);
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.5;
+  }
+
+  .text-cover .line {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 3.4vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .text-cover.small {
+    aspect-ratio: 4 / 3;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .text-cover.small .mark {
+    font-size: 96px;
+  }
+
+  .text-cover.small .line {
+    font-size: 15px;
+    letter-spacing: -0.01em;
+  }
+
+  .topic {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  .title {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  .lead .title {
+    font-size: clamp(30px, 3.6vw, 44px);
+  }
+
+  .meta {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .side {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .side li + li {
+    border-top: 1px solid var(--line);
+    margin-top: 32px;
+    padding-top: 32px;
+  }
+
+  .side a {
+    display: grid;
+    grid-template-columns: clamp(96px, 35%, 200px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .side :global(.cover img) {
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 14px;
+  }
+
+  .side .text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .side .label {
+    margin: 0;
+  }
+
+  .side .title {
+    font-size: 21px;
+  }
+
+  .lead:hover .title,
+  .lead:focus-visible .title,
+  .side a:hover .title,
+  .side a:focus-visible .title {
+    color: var(--accent);
+  }
+</style>
