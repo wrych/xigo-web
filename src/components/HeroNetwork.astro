@@ -1,0 +1,87 @@
+---
+/* Not NetworkScene: that one is a labelled, framed illustration with matches
+ * travelling between clusters. This one is decoration, hidden from assistive
+ * technology, so it shares only the seeded generator and the breathing. */
+import { BREATH_SECONDS, heroScene } from "../scene";
+
+const { size, nodes, links } = heroScene();
+---
+
+<svg
+  class="hero-network"
+  viewBox={`0 0 ${size} ${size}`}
+  aria-hidden="true"
+  focusable="false"
+  style={`--breath: ${BREATH_SECONDS}s`}
+>
+  <defs>
+    <radialGradient id="hero-glow">
+      <stop offset="0%" class="glow-centre" />
+      <stop offset="100%" class="glow-edge" />
+    </radialGradient>
+  </defs>
+  <circle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#hero-glow)" />
+  <g class="links">
+    {links.map((link) => (
+      <line x1={link.x1} y1={link.y1} x2={link.x2} y2={link.y2} />
+    ))}
+  </g>
+  <g>
+    {nodes.map((node) => (
+      <circle
+        class:list={[node.hub ? "hub" : "member"]}
+        cx={node.x}
+        cy={node.y}
+        r={node.r}
+        style={node.hub ? `--delay: ${node.delay}s` : undefined}
+      />
+    ))}
+  </g>
+</svg>
+
+<style>
+  .hero-network {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .glow-centre,
+  .glow-edge {
+    stop-color: var(--accent);
+    stop-opacity: 0.14;
+  }
+
+  .glow-edge {
+    stop-opacity: 0;
+  }
+
+  .links line {
+    stroke: var(--accent);
+    stroke-opacity: 0.25;
+    stroke-width: 0.7;
+  }
+
+  .member {
+    fill: var(--muted);
+  }
+
+  .hub {
+    fill: var(--accent);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: breathe var(--breath) var(--delay) ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.75;
+    }
+    50% {
+      transform: scale(1.4);
+      opacity: 1;
+    }
+  }
+</style>
