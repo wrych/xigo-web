@@ -258,45 +258,6 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
   ]);
 });
 
-test("Home's statement stands beside a decorative network (R-HOME-6)", async () => {
-  const { html } = await page("/");
-  const hero = html.slice(
-    html.indexOf('class="hero'),
-    html.indexOf('id="work-heading"'),
-  );
-  assert.match(
-    hero,
-    /<svg[^>]*class="hero-network[^"]*"[^>]*aria-hidden="true"/,
-  );
-});
-
-const heroNetwork = async (options) => {
-  const browser = await chromium.launch();
-  try {
-    const tab = await browser.newPage(options);
-    await tab.goto(`${origin}/`);
-    return await tab.evaluate(() => ({
-      running: document
-        .getAnimations()
-        .filter((animation) => animation.playState === "running").length,
-      shown:
-        getComputedStyle(document.querySelector(".hero-network")).display !==
-        "none",
-    }));
-  } finally {
-    await browser.close();
-  }
-};
-
-test("the hero network breathes, stands still under reduced motion, and leaves phones (R-HOME-6, R-WEB-4)", async () => {
-  const moving = await heroNetwork({ reducedMotion: "no-preference" });
-  assert.ok(moving.running > 0 && moving.shown);
-  const still = await heroNetwork({ reducedMotion: "reduce" });
-  assert.equal(still.running, 0);
-  const phone = await heroNetwork({ viewport: { width: 360, height: 800 } });
-  assert.equal(phone.shown, false);
-});
-
 const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));
 
 test("About links every founder's profile (R-ABOUT-4)", async () => {
@@ -474,4 +435,43 @@ test("every page names the site's icon, and the server serves it (R-WEB-7)", asy
   }
   const svg = await (await fetch(`${origin}/favicon.svg`)).text();
   assert.match(svg, /fill="#e6c79c"/, "the dot is the accent gold");
+});
+
+test("Home's statement stands beside a decorative network (R-HOME-6)", async () => {
+  const { html } = await page("/");
+  const hero = html.slice(
+    html.indexOf('class="hero'),
+    html.indexOf('id="work-heading"'),
+  );
+  assert.match(
+    hero,
+    /<svg[^>]*class="hero-network[^"]*"[^>]*aria-hidden="true"/,
+  );
+});
+
+const heroNetwork = async (options) => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage(options);
+    await tab.goto(`${origin}/`);
+    return await tab.evaluate(() => ({
+      running: document
+        .getAnimations()
+        .filter((animation) => animation.playState === "running").length,
+      shown:
+        getComputedStyle(document.querySelector(".hero-network")).display !==
+        "none",
+    }));
+  } finally {
+    await browser.close();
+  }
+};
+
+test("the hero network breathes, stands still under reduced motion, and leaves phones (R-HOME-6, R-WEB-4)", async () => {
+  const moving = await heroNetwork({ reducedMotion: "no-preference" });
+  assert.ok(moving.running > 0 && moving.shown);
+  const still = await heroNetwork({ reducedMotion: "reduce" });
+  assert.equal(still.running, 0);
+  const phone = await heroNetwork({ viewport: { width: 360, height: 800 } });
+  assert.equal(phone.shown, false);
 });

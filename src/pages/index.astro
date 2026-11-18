@@ -1,12 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import Cover from "../components/Cover.astro";
-import HeroNetwork from "../components/HeroNetwork.astro";
 import PostList from "../components/PostList.astro";
 import { latest } from "../journal";
 import { allPosts } from "../posts";
 import { allProjects } from "../projects";
 import { PROJECT_TOPICS, showcase } from "../work";
+import HeroNetwork from "../components/HeroNetwork.astro";
 
 const newest = latest(await allPosts());
 const { lead, more } = showcase(await allProjects());
