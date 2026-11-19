@@ -728,6 +728,75 @@ test("the nodes a signal reaches light up as it arrives, then fade (R-HOME-6)", 
   assert.equal(after.arrival, 0);
 });
 
+test("every hero shape scales about its own centre, in the drawing's units (R-HOME-6)", async () => {
+  const browser = await launchChromium();
+  try {
+    const tab = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await tab.goto(`${origin}/`);
+    const misplaced = await tab.evaluate(() =>
+      [".dot", ".lift", ".ring", ".arrival-spark", ".pulse-spark"].flatMap(
+        (selector) =>
+          [...document.querySelectorAll(`.hero-network ${selector}`)]
+            .filter((shape) => {
+              const circle = shape.matches("circle")
+                ? shape
+                : shape.querySelector("circle");
+              const style = getComputedStyle(shape);
+              const [x, y] = style.transformOrigin.split(" ").map(parseFloat);
+              return (
+                style.transformBox !== "view-box" ||
+                Math.abs(x - circle.cx.baseVal.value) > 0.01 ||
+                Math.abs(y - circle.cy.baseVal.value) > 0.01
+              );
+            })
+            .map(() => selector),
+      ),
+    );
+    assert.deepEqual(misplaced, []);
+  } finally {
+    await browser.close();
+  }
+});
+
+test("a hero node grows only for a pointer that hovers, so a tap leaves none grown (R-HOME-6)", async () => {
+  const browser = await launchChromium();
+  try {
+    const tab = await browser.newPage({
+      viewport: { width: 1280, height: 800 },
+    });
+    await tab.goto(`${origin}/`);
+    const conditions = await tab.evaluate(() => {
+      const found = [];
+      const walk = (rules, conditions) => {
+        for (const rule of rules) {
+          if (rule instanceof CSSMediaRule) {
+            walk(rule.cssRules, [...conditions, rule.conditionText]);
+          } else if (rule instanceof CSSStyleRule) {
+            if (/\.node(\[[^\]]*\])?:hover/.test(rule.selectorText)) {
+              found.push(conditions.join(" and ") || "none");
+            }
+            walk(rule.cssRules, conditions);
+          } else if (rule.cssRules) {
+            walk(rule.cssRules, conditions);
+          }
+        }
+      };
+      for (const sheet of document.styleSheets) walk(sheet.cssRules, []);
+      return found;
+    });
+    assert.ok(conditions.length > 0, "no hover rule for hero nodes");
+    assert.deepEqual(
+      [...new Set(conditions)],
+      ["(hover: hover)"],
+      "a hover rule applies on touch screens too",
+    );
+  } finally {
+    await browser.close();
+  }
+});
+
 test("under reduced motion a pressed hero node sends no signal (R-HOME-6, R-WEB-4)", async () => {
   const { press } = await pressNode("reduce");
   assert.equal(press.signalDrawn, false);
