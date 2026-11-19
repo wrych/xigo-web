@@ -150,7 +150,8 @@ xigo.ch, as served to a visitor.
   accessible name "xigo". The accent dot has one form, the node — a small
   filled circle in the accent colour — used for the wordmark's dot, list
   bullets, eyebrows, the featured marker and the current page in the
-  navigation.
+  navigation. The accent never fills a button: a page's primary action is
+  filled in the text colour.
 
 ## 3D (R-3D)
 
