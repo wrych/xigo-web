@@ -94,14 +94,56 @@ test("the hero network is the same on every build (R-HOME-6)", () => {
   assert.deepEqual(heroScene(), heroScene());
 });
 
-test("the hero network stays inside its frame and has golden hubs (R-HOME-6)", () => {
-  const { nodes, links } = heroScene();
-  for (const node of nodes) {
-    assert.ok(node.x - node.r > 0 && node.x + node.r < HERO_SIZE);
-    assert.ok(node.y - node.r > 0 && node.y + node.r < HERO_SIZE);
+test("the hero network is communities bridged by a few golden people (R-HOME-6)", () => {
+  const { nodes, links, neighbours, communities, bridges } = heroScene();
+  assert.ok(communities.length >= 3, "several communities");
+  assert.ok(bridges.length >= 3 && bridges.length <= 5, "a few bridges");
+  for (const [cluster, community] of communities.entries()) {
+    assert.ok(community.members.length > 4);
+    assert.ok(community.members.every((i) => nodes[i].cluster === cluster));
+    assert.ok(community.members.every((i) => !nodes[i].hub));
+    assert.ok(links.some((link) => link.cluster === cluster));
+    assert.ok(community.depth > 0 && community.depth <= 1);
   }
-  assert.ok(nodes.some((node) => node.hub));
-  assert.ok(links.length > 0);
+  const bridged = new Set();
+  for (const bridge of bridges) {
+    assert.ok(nodes[bridge.node].hub);
+    assert.ok(bridge.joins.length >= 2, "a bridge joins two communities");
+    for (const joined of bridge.joins) {
+      bridged.add(joined);
+      assert.ok(
+        neighbours[bridge.node].some((i) => nodes[i].cluster === joined),
+        "a bridge's signals reach each community it joins",
+      );
+    }
+  }
+  assert.equal(bridged.size, communities.length, "no community is left alone");
+  assert.equal(
+    nodes.filter((node) => node.hub).length,
+    bridges.length,
+    "only the bridges are golden",
+  );
+});
+
+test("the hero network, its grounds and halos stay inside its frame (R-HOME-6)", () => {
+  const { nodes, communities, bridges } = heroScene();
+  const discs = [
+    ...nodes,
+    ...communities.map((community) => ({ ...community, r: community.ground })),
+    ...bridges.map((bridge) => ({ ...nodes[bridge.node], r: bridge.halo })),
+  ];
+  for (const disc of discs) {
+    assert.ok(disc.x - disc.r >= 0 && disc.x + disc.r <= HERO_SIZE);
+    assert.ok(disc.y - disc.r >= 0 && disc.y + disc.r <= HERO_SIZE);
+  }
+});
+
+test("the hero's idle pulses run out from the bridges (R-HOME-6)", () => {
+  const { nodes, pulses, bridges } = heroScene();
+  const starts = new Set(
+    bridges.map((bridge) => `${nodes[bridge.node].x},${nodes[bridge.node].y}`),
+  );
+  for (const pulse of pulses) assert.ok(starts.has(`${pulse.x1},${pulse.y1}`));
 });
 
 test("each hero node knows the nodes it is joined to (R-HOME-6)", () => {

@@ -558,6 +558,12 @@ test("Home's statement stands beside a decorative network (R-HOME-6)", async () 
     hero,
     /<svg[^>]*class="hero-network[^"]*"[^>]*aria-hidden="true"/,
   );
+  assert.ok((hero.match(/class="community"/g) ?? []).length >= 3);
+  const bridges = [
+    ...hero.matchAll(/class="node bridge" data-joins="([\d ]+)"/g),
+  ];
+  assert.ok(bridges.length >= 3);
+  for (const [, joins] of bridges) assert.ok(joins.split(" ").length >= 2);
 });
 
 const heroNetwork = async (options) => {

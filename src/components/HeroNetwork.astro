@@ -1,7 +1,9 @@
 ---
-/* Not NetworkScene: that one is a labelled, framed illustration with matches
- * travelling between clusters. This one is decoration, hidden from assistive
- * technology, so it shares only the seeded generator and the breathing.
+/* xigo's own picture (R-HOME-6): communities, each a cluster of people, and
+ * a few golden people bridging them — the people who bring people together.
+ * Not NetworkScene, the project illustration: this one is decoration, hidden
+ * from assistive technology, and shares only the seeded generator and the
+ * breathing.
  *
  * Press and release need no script: pressing a node (:active) snaps its flash,
  * signals and arrival sparks to their start with no transition; releasing it
@@ -9,7 +11,10 @@
  * are invisible, so nothing plays when the page loads. */
 import { BREATH_SECONDS, HERO_PULSE_CYCLE_SECONDS, heroScene } from "../scene";
 
-const { size, nodes, links, neighbours, pulses } = heroScene();
+const { size, nodes, links, neighbours, pulses, communities, bridges } =
+  heroScene();
+const bridgeOf = new Map(bridges.map((bridge) => [bridge.node, bridge]));
+const depthOf = (cluster: number) => communities[cluster]?.depth ?? 1;
 const HIT_RADIUS = 9;
 const ARRIVAL_RADIUS = 2.6;
 const PULSE_SPARK_RADIUS = 7;
@@ -28,13 +33,53 @@ const RING_GAP = 2;
       <stop offset="0%" class="glow-centre" />
       <stop offset="100%" class="glow-edge" />
     </radialGradient>
+    <radialGradient id="hero-community">
+      <stop offset="0%" class="community-centre" />
+      <stop offset="70%" class="community-middle" />
+      <stop offset="100%" class="community-edge" />
+    </radialGradient>
+    <radialGradient id="hero-halo">
+      <stop offset="0%" class="halo-centre" />
+      <stop offset="100%" class="halo-edge" />
+    </radialGradient>
   </defs>
   <circle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#hero-glow)" />
-  <g class="links">
-    {links.map((link) => (
-      <line x1={link.x1} y1={link.y1} x2={link.x2} y2={link.y2} />
-    ))}
+  {communities.map((community, cluster) => (
+    <g class="community" style={`opacity: ${community.depth}`}>
+      <circle
+        cx={community.x}
+        cy={community.y}
+        r={community.ground}
+        fill="url(#hero-community)"
+      />
+      {links
+        .filter((link) => link.cluster === cluster)
+        .map((link) => (
+          <line
+            class="link"
+            x1={link.x1}
+            y1={link.y1}
+            x2={link.x2}
+            y2={link.y2}
+          />
+        ))}
+    </g>
+  ))}
+  <g class="bridge-links">
+    {links
+      .filter((link) => link.cluster === -1)
+      .map((link) => (
+        <line x1={link.x1} y1={link.y1} x2={link.x2} y2={link.y2} />
+      ))}
   </g>
+  {bridges.map((bridge) => (
+    <circle
+      cx={nodes[bridge.node].x}
+      cy={nodes[bridge.node].y}
+      r={bridge.halo}
+      fill="url(#hero-halo)"
+    />
+  ))}
   <g class="pulses">
     {pulses.map((pulse) => (
       <g style={`--delay: ${pulse.delay}s`}>
@@ -56,7 +101,11 @@ const RING_GAP = 2;
     ))}
   </g>
   {nodes.map((node, index) => (
-    <g class="node" style={`--delay: ${node.delay}s`}>
+    <g
+      class:list={["node", { bridge: bridgeOf.has(index) }]}
+      data-joins={bridgeOf.get(index)?.joins.join(" ")}
+      style={`--delay: ${node.delay}s; --depth: ${depthOf(node.cluster)}`}
+    >
       {neighbours[index].map((other) => (
         <line
           class="edge"
@@ -124,17 +173,48 @@ const RING_GAP = 2;
   .glow-centre,
   .glow-edge {
     stop-color: var(--accent);
-    stop-opacity: 0.14;
+    stop-opacity: 0.08;
   }
 
   .glow-edge {
     stop-opacity: 0;
   }
 
-  .links line {
+  .community-centre,
+  .community-middle,
+  .community-edge {
+    stop-color: var(--text);
+    stop-opacity: 0.06;
+  }
+
+  .community-middle {
+    stop-opacity: 0.035;
+  }
+
+  .community-edge {
+    stop-opacity: 0;
+  }
+
+  .halo-centre,
+  .halo-edge {
+    stop-color: var(--accent);
+    stop-opacity: 0.3;
+  }
+
+  .halo-edge {
+    stop-opacity: 0;
+  }
+
+  .link {
+    stroke: var(--text);
+    stroke-opacity: 0.16;
+    stroke-width: 0.6;
+  }
+
+  .bridge-links line {
     stroke: var(--accent);
-    stroke-opacity: 0.25;
-    stroke-width: 0.7;
+    stroke-opacity: 0.45;
+    stroke-width: 0.8;
   }
 
   .pulse {
@@ -185,7 +265,10 @@ const RING_GAP = 2;
     cursor: pointer;
   }
 
+  /* Nearer communities are brighter; the depth dims only the person, not
+   * the signals they send. */
   .lift {
+    opacity: var(--depth);
     transition: transform var(--hover-time) var(--ease-out);
   }
 
