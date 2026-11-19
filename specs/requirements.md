@@ -28,8 +28,8 @@ xigo.ch, as served to a visitor.
   each linking to its page.
 - **R-HOME-4** Home shows the three newest posts, each linking to its page:
   the newest large, with its cover and excerpt, and the next two beside it,
-  with their covers. Each shows date, title, topic, author and reading time. A
-  post without a cover shows a line of its excerpt in the cover's place.
+  with their covers (R-JOUR-6). Each shows date, title, topic, author and
+  reading time.
 - **R-HOME-5** Home ends with a contact section whose address is
   `info@xigo.ch`, as a `mailto:` link.
 - **R-HOME-6** Home's opening statement stands beside an illustration of a
@@ -69,12 +69,13 @@ xigo.ch, as served to a visitor.
 
 ## Journal (R-JOUR)
 
-- **R-JOUR-1** Journal shows the featured post large, then every other post,
-  newest first, with date, title, excerpt and topic.
+- **R-JOUR-1** Journal shows the featured post large, with its cover, then
+  every other post, newest first, with a small cover, date, title, excerpt and
+  topic.
 - **R-JOUR-2** Journal can be filtered by topic, in the same way as R-WORK-2
   (`/journal/topic/<topic>`).
-- **R-JOUR-3** A post page shows title, date, author, reading time and the
-  post. A post first published elsewhere says where and when.
+- **R-JOUR-3** A post page shows title, date, author, reading time, its cover
+  and the post. A post first published elsewhere says where and when.
 - **R-JOUR-4** The site publishes an RSS feed of all posts at `/feed.xml`,
   linked from every page's head and from Journal.
 - **R-JOUR-5** The seven articles on the current xigo.ch move over with their
@@ -82,6 +83,13 @@ xigo.ch, as served to a visitor.
   redirect to the new ones permanently. Images in them that are not ours are
   replaced by a link to their source until we have permission, and covers that
   are not ours are left out (constitution §A).
+- **R-JOUR-6** Every post's cover is generated at build time in the site's own
+  visual language (ADR 0010): SVG drawn from the post's slug, so it is its own
+  and the same on every build, and shaped by its topic, each topic with its
+  own composition, in one palette, light and frame. It is the only cover a post
+  has. It needs no JavaScript and loads nothing, it fits both the wide frame
+  where a post leads and the small one in a list, and it is decorative: hidden
+  from assistive technology, since the post's title stands beside it.
 
 ## About (R-ABOUT)
 

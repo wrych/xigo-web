@@ -22,8 +22,6 @@ date: 2024-12-03
 author: Ivo Pejakovic # or Andy Moesch
 topic: change # one of: news, events, self-organization, decisions, change, trust, software
 excerpt: "In today’s ever-changing and complex world, adaptability and flexibility are crucial."
-cover: ./cover.png # optional, beside the post
-coverAlt: "voice in a complex world" # required with a cover
 featured: false # at most one post is featured
 draft: false # R-CONT-3, not yet supported: until it is, a post with it fails the build
 original: # optional: where it was first published
@@ -34,6 +32,9 @@ original: # optional: where it was first published
 ```
 
 The excerpt is a sentence from the post itself, not a new one.
+
+A post names no cover: its cover is drawn from its slug and topic (R-JOUR-6,
+ADR 0010). An image the author wants to show goes inside the post.
 
 ## A project
 
