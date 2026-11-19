@@ -21,18 +21,20 @@ const projects = await allProjects();
           <Cover
             src={project.data.image}
             alt={project.data.imageAlt}
-            sizes="(min-width: 1000px) 640px, 100vw"
+            sizes="100vw"
           />
           <span class="text">
-            <span class="label">
-              {project.data.featured && <span class="dot">Featured · </span>}
-              {project.data.year} ·{" "}
-              {project.data.topics
-                .map((topic) => PROJECT_TOPICS[topic])
-                .join(" · ")}
+            <span class="head">
+              <span class="label">
+                {project.data.featured && <span class="dot">Featured · </span>}
+                {project.data.year} ·{" "}
+                {project.data.topics
+                  .map((topic) => PROJECT_TOPICS[topic])
+                  .join(" · ")}
+              </span>
+              <span class="title">{project.data.title}</span>
             </span>
-            <span class="title">{project.data.title}</span>
-            <span class="muted">{project.data.summary}</span>
+            <span class="summary muted">{project.data.summary}</span>
           </span>
         </a>
       </li>
@@ -44,22 +46,36 @@ const projects = await allProjects();
   .projects {
     list-style: none;
     margin: 0;
-    padding: 0 0 128px;
+    padding: 0 0 clamp(80px, 10vw, 128px);
     display: flex;
     flex-direction: column;
-    gap: 64px;
+    gap: clamp(80px, 10vw, 128px);
   }
 
   li a {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-    gap: 32px 48px;
-    align-items: center;
-    padding-top: 48px;
-    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* The featured image runs out to the window, and keeps its rounded
+   * corners only on the side still inside the column (R-WORK-7). */
+  .featured :global(.cover) {
+    margin-right: calc(-1 * var(--bleed));
+  }
+
+  .featured :global(.cover img) {
+    border-radius: 24px 0 0 24px;
   }
 
   .text {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 24px 48px;
+    align-items: end;
+  }
+
+  .head {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -67,9 +83,16 @@ const projects = await allProjects();
 
   .title {
     font-family: var(--font-display);
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1;
-    letter-spacing: -0.04em;
+    font-size: clamp(40px, 6vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .summary {
+    max-width: 460px;
+    font-size: 18px;
+    text-wrap: pretty;
   }
 
   li a:hover .title,
