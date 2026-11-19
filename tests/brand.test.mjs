@@ -1,8 +1,8 @@
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
-import { spawn, spawnSync } from "node:child_process";
-import { createServer } from "node:net";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { serve } from "./work-site.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const PAGES = [
@@ -13,28 +13,8 @@ const PAGES = [
   "/work/rebel-match",
   "/about/andy",
 ];
-let server;
 let origin;
-
-function freePort() {
-  return new Promise((resolve) => {
-    const probe = createServer().listen(0, "127.0.0.1", () => {
-      const { port } = probe.address();
-      probe.close(() => resolve(port));
-    });
-  });
-}
-
-async function waitFor(url) {
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    try {
-      return await fetch(url);
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-  }
-  throw new Error(`${url} did not answer`);
-}
+let stop;
 
 const text = async (path) => (await fetch(`${origin}${path}`)).text();
 
@@ -54,17 +34,10 @@ before(async () => {
     encoding: "utf8",
   });
   assert.equal(build.status, 0, build.stdout + build.stderr);
-  const port = await freePort();
-  origin = `http://127.0.0.1:${port}`;
-  server = spawn("node", ["dist/server/entry.mjs"], {
-    cwd: root,
-    env: { ...process.env, HOST: "127.0.0.1", PORT: String(port) },
-    stdio: "ignore",
-  });
-  await waitFor(origin);
+  ({ origin, stop } = await serve(root));
 });
 
-after(() => server?.kill());
+after(() => stop?.());
 
 for (const path of PAGES) {
   test(`${path} shows the drawn wordmark, named xigo, in header and footer (R-WEB-8, R-NAV-2, R-NAV-3)`, async () => {
