@@ -5,6 +5,7 @@ import { createServer } from "node:net";
 import { readdirSync } from "node:fs";
 import { chromium } from "playwright";
 import { fileURLToPath } from "node:url";
+import { coverSvg } from "../src/covers.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 let server;
@@ -238,17 +239,15 @@ test("images that are not ours are links to their source, not copies (R-JOUR-5)"
   assert.equal([...main.matchAll(/see it at its source/g)].length, 4);
 });
 
-test("covers come resized, as webp with a jpeg fallback, with alt text and size (R-CONT-4, R-CONT-5)", async () => {
-  const { html } = await page(
-    "/journal/navigating-change-finding-your-voice-in-a-complex-world",
-  );
+test("images come resized, as webp with a jpeg fallback, with alt text and size (R-CONT-4, R-CONT-5)", async () => {
+  const { html } = await page("/work/rebel-match");
   const picture = /<picture\b[\s\S]*?<\/picture>/.exec(region(html, "main"))[0];
   const source = /<source[^>]*>/.exec(picture)[0];
   assert.match(source, /type="image\/webp"/);
   assert.match(source, /srcset="[^"]*480w[^"]*960w/);
   const img = /<img[^>]*>/.exec(picture)[0];
   assert.match(img, /src="\/_astro\/[^"]+\.jpg"/);
-  assert.match(img, /alt="voice in a complex world"/);
+  assert.match(img, /alt="Three phone screens from Rebel Match\.[^"]*"/);
   assert.match(img, /width="\d+" height="\d+"/);
 });
 
@@ -308,27 +307,66 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
   ]);
 });
 
-test("each home post shows author and reading time, the next two a cover (R-HOME-4)", async () => {
-  const { html } = await page("/");
-  const journal = html.slice(
+const covers = (html) =>
+  [
+    ...html.matchAll(
+      /<span class="cover-frame (wide|card)"[^>]*><svg\b([^>]*)>/g,
+    ),
+  ].map((match) => ({ shape: match[1], svg: match[2] }));
+
+const homeJournal = (html) =>
+  html.slice(
     html.indexOf('id="journal-heading"'),
     html.indexOf('id="contact"'),
   );
+
+test("each home post shows author, reading time and its generated cover (R-HOME-4, R-JOUR-6)", async () => {
+  const journal = homeJournal((await page("/")).html);
   const metas = [
     ...journal.matchAll(
       /Ivo Pejakovic · <time datetime="[0-9-]+"[^>]*>[^<]+<\/time> · \d+ min/g,
     ),
   ];
   assert.equal(metas.length, 3);
-  assert.equal([...journal.matchAll(/<img\b/g)].length, 2);
+  assert.deepEqual(
+    covers(journal).map((cover) => cover.shape),
+    ["wide", "card", "card"],
+  );
+  assert.match(journal, /Consent is not consensus\./);
 });
 
-test("a home post without a cover shows its excerpt in the cover's place (R-HOME-4)", async () => {
-  const { html } = await page("/");
-  assert.match(
-    html,
-    /class="text-cover"[^>]*>[\s\S]*?class="line"[^>]*>Consent is not consensus\.</,
-  );
+test("covers are decorative, generated and the old images gone (R-JOUR-6)", async () => {
+  const pages = [
+    homeJournal((await page("/")).html),
+    region((await page("/journal")).html, "main"),
+    region((await page("/journal/topic/software")).html, "main"),
+  ];
+  for (const slug of POSTS) {
+    pages.push(region((await page(`/journal/${slug}`)).html, "main"));
+  }
+  for (const html of pages) {
+    assert.doesNotMatch(html, /<img\b/);
+    assert.doesNotMatch(html, /text-cover/);
+    for (const cover of covers(html)) {
+      assert.match(cover.svg, /aria-hidden="true"/);
+      assert.match(cover.svg, /data-topic="[a-z-]+"/);
+    }
+  }
+});
+
+test("the journal leads with a wide cover and lists every other post with a small one (R-JOUR-1, R-JOUR-6)", async () => {
+  const main = region((await page("/journal")).html, "main");
+  const shapes = covers(main).map((cover) => cover.shape);
+  assert.equal(shapes.length, POSTS.length);
+  assert.deepEqual(shapes, ["wide", ...Array(POSTS.length - 1).fill("card")]);
+});
+
+test("a post page shows its cover, the one the journal draws for it (R-JOUR-3, R-JOUR-6)", async () => {
+  const slug = "passionate-about-software";
+  const post = region((await page(`/journal/${slug}`)).html, "main");
+  assert.ok(post.includes(coverSvg(slug, "software", "wide")));
+  const topic = region((await page("/journal/topic/software")).html, "main");
+  assert.ok(topic.includes(coverSvg(slug, "software", "card")));
 });
 
 const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));

@@ -4,8 +4,6 @@ date: 2024-11-16
 author: Ivo Pejakovic
 topic: self-organization
 excerpt: "Five years ago, my perspective on work changed forever."
-cover: ./cover.png
-coverAlt: "it starts with you"
 original:
   site: LinkedIn
   date: 2024-11-16

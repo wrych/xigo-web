@@ -4,8 +4,6 @@ date: 2024-11-28
 author: Ivo Pejakovic
 topic: self-organization
 excerpt: "Self-organization is an inspiring journey filled with growth opportunities."
-cover: ./cover.png
-coverAlt: "tension in self-management organisation"
 original:
   site: LinkedIn
   date: 2024-11-26

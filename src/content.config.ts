@@ -12,33 +12,23 @@ const journal = defineCollection({
     base: "./content/journal",
     generateId: ({ entry }) => entry.split("/")[0],
   }),
-  schema: ({ image }) =>
-    z
-      .object({
-        title: z.string().min(1),
-        date: z.coerce.date(),
-        author: z.enum(AUTHORS),
-        topic: z.enum(Object.keys(TOPICS) as [Topic, ...Topic[]]),
-        excerpt: z.string().min(1),
-        cover: image().optional(),
-        coverAlt: z.string().min(1).optional(),
-        featured: z.boolean().default(false),
-        original: z
-          .object({
-            site: z.string().min(1),
-            date: z.coerce.date(),
-            url: z.url(),
-          })
-          .optional(),
-      })
-      .strict()
-      .refine(
-        (post) => (post.cover === undefined) === (post.coverAlt === undefined),
-        {
-          message: "cover and coverAlt go together (R-CONT-5)",
-          path: ["coverAlt"],
-        },
-      ),
+  schema: z
+    .object({
+      title: z.string().min(1),
+      date: z.coerce.date(),
+      author: z.enum(AUTHORS),
+      topic: z.enum(Object.keys(TOPICS) as [Topic, ...Topic[]]),
+      excerpt: z.string().min(1),
+      featured: z.boolean().default(false),
+      original: z
+        .object({
+          site: z.string().min(1),
+          date: z.coerce.date(),
+          url: z.url(),
+        })
+        .optional(),
+    })
+    .strict(),
 });
 
 const people = defineCollection({
