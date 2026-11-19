@@ -32,6 +32,10 @@ xigo.ch, as served to a visitor.
   post without a cover shows a line of its excerpt in the cover's place.
 - **R-HOME-5** Home ends with a contact section whose address is
   `info@xigo.ch`, as a `mailto:` link.
+- **R-HOME-6** Home's opening statement stands beside an illustration of a
+  network, drawn in SVG and CSS at build time, so it needs no JavaScript. It is
+  decorative: hidden from assistive technology, left out at phone width, and
+  still under reduced motion (R-WEB-4).
 
 ## Work (R-WORK)
 

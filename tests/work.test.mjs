@@ -5,6 +5,8 @@ import {
   MATCH_CYCLE_SECONDS,
   SCENE_HEIGHT,
   SCENE_WIDTH,
+  HERO_SIZE,
+  heroScene,
   networkScene,
   seeded,
 } from "../src/scene.ts";
@@ -85,4 +87,18 @@ test("Home shows the featured project and the next two of Work's order (R-HOME-3
 
 test("Home shows nothing when there is no project (R-HOME-3)", () => {
   assert.deepEqual(showcase([]), { lead: undefined, more: [] });
+});
+
+test("the hero network is the same on every build (R-HOME-6)", () => {
+  assert.deepEqual(heroScene(), heroScene());
+});
+
+test("the hero network stays inside its frame and has golden hubs (R-HOME-6)", () => {
+  const { nodes, links } = heroScene();
+  for (const node of nodes) {
+    assert.ok(node.x - node.r > 0 && node.x + node.r < HERO_SIZE);
+    assert.ok(node.y - node.r > 0 && node.y + node.r < HERO_SIZE);
+  }
+  assert.ok(nodes.some((node) => node.hub));
+  assert.ok(links.length > 0);
 });
