@@ -1,0 +1,70 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT_ADDRESS } from "../../contact/form";
+---
+
+<Base title="Message sent" description="Your message is on its way to xigo.">
+  <section class="sent">
+    <p class="label">
+      <span class="dot">●</span> Message sent
+    </p>
+    <h1>
+      Thank you<span class="dot">.</span>
+    </h1>
+    <p class="lead muted">
+      Your message is on its way to {CONTACT_ADDRESS}. We will reply to the
+      address you gave.
+    </p>
+    <nav class="next" aria-label="Where next">
+      <a href="/work">See our work →</a>
+      <a href="/journal">Read the journal →</a>
+      <a href="/">Back to the home page →</a>
+    </nav>
+  </section>
+</Base>
+
+<style>
+  .sent {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 120px 0 176px;
+  }
+
+  .sent .label {
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(64px, 11vw, 152px);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+    animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .lead {
+    margin: 0;
+    max-width: 480px;
+    font-size: 18px;
+  }
+
+  .next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+
+  .next a {
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+</style>

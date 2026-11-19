@@ -36,6 +36,9 @@ stricter rule wins.
 - **The site collects no personal data.** No accounts, no forms that store what
   people type, no third-party trackers, and no cookie that needs consent.
   Adding any of these needs an ADR first.
+- **The contact form is the one exception** (ADR 0009). What a visitor types
+  is mailed to `info@xigo.ch` and nothing else: never written to disk, a
+  database or a log.
 
 ## D. Deployment
 
@@ -49,4 +52,4 @@ stricter rule wins.
 
 ---
 
-_Adopted 2026-11-05. Amendments require an ADR._
+_Adopted 2026-11-05, amended by ADR 0009. Amendments require an ADR._

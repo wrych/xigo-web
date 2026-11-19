@@ -5,14 +5,14 @@ xigo.ch, as served to a visitor.
 
 ## Pages and navigation (R-NAV)
 
-- **R-NAV-1** The site has four pages: Home (`/`), Work (`/work`), Journal
-  (`/journal`) and About (`/about`). Each post has its own page
-  (`/journal/<slug>`), so does each project (`/work/<slug>`), and so does each
-  founder's profile (`/about/<slug>`).
+- **R-NAV-1** The site has five pages: Home (`/`), Work (`/work`), Journal
+  (`/journal`), About (`/about`) and Contact (`/contact`). Each post has its
+  own page (`/journal/<slug>`), so does each project (`/work/<slug>`), and so
+  does each founder's profile (`/about/<slug>`).
 - **R-NAV-2** Every page shows the wordmark, linking to Home, and links to Work,
-  Journal, About and to the contact section. The current page is marked with
+  Journal, About and Contact. The current page is marked with
   `aria-current="page"`.
-- **R-NAV-3** Every page ends with a footer: the wordmark, the four links, a
+- **R-NAV-3** Every page ends with a footer: the wordmark, the links of R-NAV-2, a
   link to xigo's code on GitHub, and the line "Code MIT · Content CC BY 4.0 ·
   Logo © xigo" (ADR 0005).
 - **R-NAV-4** An unknown path answers 404 with a page that links Home.
@@ -31,7 +31,7 @@ xigo.ch, as served to a visitor.
   with their covers. Each shows date, title, topic, author and reading time. A
   post without a cover shows a line of its excerpt in the cover's place.
 - **R-HOME-5** Home ends with a contact section whose address is
-  `info@xigo.ch`, as a `mailto:` link.
+  `info@xigo.ch`, as a `mailto:` link, and which links to Contact.
 - **R-HOME-6** Home's opening statement stands beside an illustration of a
   network, drawn in SVG and CSS at build time, so it needs no JavaScript. It is
   decorative: hidden from assistive technology, left out at phone width, and
@@ -83,6 +83,25 @@ xigo.ch, as served to a visitor.
   employer, client, organisation or colleague; it describes them in general
   terms. It shows a photo and a LinkedIn link only once there is one.
 
+## Contact (R-CONTACT)
+
+- **R-CONTACT-1** Contact is a form asking for name, email, organisation
+  (optional) and message, beside the address `info@xigo.ch` as a `mailto:`
+  link. It says that what is sent goes to `info@xigo.ch` and is kept nowhere
+  else (ADR 0009).
+- **R-CONTACT-2** Sending the form mails its contents to `info@xigo.ch`, with
+  the visitor's address as Reply-To, and then shows a page thanking them
+  (`/contact/sent`).
+- **R-CONTACT-3** A form with a missing or invalid field is not sent: the page
+  answers with what the visitor typed kept, a summary of the problems linking
+  to each field, and each problem named beside its field.
+- **R-CONTACT-4** Spam is held back without a CAPTCHA or third-party script: a
+  form with the hidden trap field filled is answered as sent and mails
+  nothing, and no more than a configured number of mails leave per hour.
+- **R-CONTACT-5** Nothing a visitor typed is stored or logged. When a mail
+  cannot be sent, the page says so, keeps their text and offers the `mailto:`
+  link.
+
 ## Content (R-CONT)
 
 - **R-CONT-1** Every post and project is a Markdown file with front matter
@@ -107,7 +126,8 @@ xigo.ch, as served to a visitor.
 - **R-WEB-5** Every page has its own title and description, and an Open Graph
   image for sharing.
 - **R-WEB-6** The site sets no cookie, loads no third-party script, and
-  collects no personal data (constitution §C). Fonts are served by the site.
+  collects no personal data except what a visitor sends with the contact form
+  (constitution §C, ADR 0009). Fonts are served by the site.
 - **R-WEB-7** Every page names the site's icon: the wordmark's x and its gold
   dot, as SVG, with `/favicon.ico` and an Apple touch icon for browsers that
   do not take SVG.
@@ -127,6 +147,8 @@ xigo.ch, as served to a visitor.
 - **R-RUN-2** The `webserver` build produces a package that starts under Plesk's
   Passenger with Node 26, configured only by environment variables (ADR 0002).
 - **R-RUN-3** Configuration is validated on start; a missing or invalid value
-  stops the start with a message naming it.
+  stops the start with a message naming it. The contact form's mail settings
+  are validated when Contact first loads; a missing or invalid one is logged
+  by name and the form is replaced by the `mailto:` link (ADR 0009).
 - **R-RUN-4** A merge to `main` with green CI deploys to staging; production
   changes only by promoting the release staging runs (ADR 0004).

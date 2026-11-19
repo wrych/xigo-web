@@ -95,6 +95,25 @@ Production is set up the same way for xigo.ch when the new site replaces the
 current one. Until then, do not run the promote workflow: it would place the
 new site next to the old one.
 
+## The contact form's mail settings
+
+The contact form (ADR 0009) sends over SMTP. Set these in Plesk, under each
+domain's **Node.js → Custom environment variables**, before the first deploy
+that has it; they are never kept in this repository or in GitHub:
+
+| Variable                 | Value                                                          |
+| ------------------------ | -------------------------------------------------------------- |
+| `SMTP_HOST`              | the SMTP server of the xigo.ch mailbox                         |
+| `SMTP_PORT`              | `587` (STARTTLS, the default) or `465` (TLS)                   |
+| `SMTP_USER`              | the mailbox the site sends from, e.g. `website@xigo.ch`        |
+| `SMTP_PASSWORD`          | its password                                                   |
+| `MAIL_FROM`              | the From address, the same mailbox                             |
+| `CONTACT_MAILS_PER_HOUR` | optional; the most mails the form sends an hour (default `20`) |
+
+Mails always go to `info@xigo.ch`, from staging too. Without `SMTP_HOST` or
+`MAIL_FROM`, Contact shows the address instead of the form and the app's log
+names the missing setting. Press **Restart App** after changing a value.
+
 ## When a deploy is refused with "another deploy holds …/lock"
 
 Wait for the other deploy and run yours again. If none is running — a run was

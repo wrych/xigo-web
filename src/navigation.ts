@@ -5,7 +5,7 @@ export const PAGES = [
   { href: "/about", label: "About" },
 ] as const;
 
-export const CONTACT_HREF = "/#contact";
+export const CONTACT_HREF = "/contact";
 export const SOURCE_HREF = "https://github.com/wrych";
 export const LICENSE_LINE = "Code MIT · Content CC BY 4.0 · Logo © xigo";
 
