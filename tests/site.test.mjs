@@ -427,7 +427,11 @@ test("Work lists every project, the featured one first (R-WORK-1)", async () => 
   assert.deepEqual([...slugs].sort(), [...PROJECTS].sort());
   assert.equal(slugs[0], "rebel-match");
   assert.match(main, /Featured/);
-  assert.match(main, /<img[^>]*alt="An illustration of a network/);
+  assert.match(
+    main,
+    /<img[^>]*alt="Three phone screens from the Rebel Match app/,
+  );
+  assert.match(main, /made-up sample members/);
 });
 
 test("a project page shows its text, its source code and its license (R-WORK-3)", async () => {

@@ -4,7 +4,7 @@ year: 2026
 summary: "Peer matching for the Corporate Rebels network: bring an organizational challenge, get matched in a conference break."
 topics: [events, communities, open-source]
 image: ./cover.png
-imageAlt: "An illustration of a network: clusters of dots joined by thin lines, with golden lines lighting up where two people from different clusters are matched."
+imageAlt: 'Three phone screens from the Rebel Match app, filled with its made-up sample members and fanned out on an orange ground, under the words "Sample members, not real people". In the middle, a member''s challenge and their matches, "Same boat: Rebels facing this now"; on the left, a welcome with "Ask for help" and "Offer help"; on the right, another member''s challenge on a card, with the answers "Same boat" and "Been there".'
 scene: network
 source: https://github.com/wrych/rebel-match
 license: MIT
