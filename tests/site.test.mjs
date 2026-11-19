@@ -486,6 +486,14 @@ const heroNetwork = async (options) => {
       running: document
         .getAnimations()
         .filter((animation) => animation.playState === "running").length,
+      animated: [
+        ...new Set(
+          document
+            .getAnimations()
+            .filter((animation) => animation.playState === "running")
+            .flatMap((animation) => [...animation.effect.target.classList]),
+        ),
+      ],
       shown:
         getComputedStyle(document.querySelector(".hero-network")).display !==
         "none",
@@ -502,4 +510,93 @@ test("the hero network breathes, stands still under reduced motion, and leaves p
   assert.equal(still.running, 0);
   const phone = await heroNetwork({ viewport: { width: 360, height: 800 } });
   assert.equal(phone.shown, false);
+});
+
+test("the hero network's pulses travel and all its nodes breathe (R-HOME-6)", async () => {
+  const { animated } = await heroNetwork({ reducedMotion: "no-preference" });
+  for (const part of ["pulse", "pulse-spark", "member", "hub"]) {
+    assert.ok(animated.includes(part), `${part} is not animated`);
+  }
+});
+
+const busiestNode = (tab) =>
+  tab.evaluate(() => {
+    const nodes = [...document.querySelectorAll(".hero-network .node")];
+    const counts = nodes.map((node) => node.querySelectorAll(".signal").length);
+    return counts.indexOf(Math.max(...counts));
+  });
+
+const nodeStyle = (tab, index) =>
+  tab.evaluate((i) => {
+    const node = document.querySelectorAll(".hero-network .node")[i];
+    const style = (selector) => getComputedStyle(node.querySelector(selector));
+    return {
+      lift: style(".lift").transform,
+      core: Number(style(".core").opacity),
+      signal: parseFloat(style(".signal").strokeDashoffset),
+      signalShown: Number(style(".signal").opacity) > 0,
+      signalDrawn: style(".signal").display !== "none",
+      ring: Number(style(".ring").opacity),
+      arrival:
+        Number(style(".arrival").opacity) *
+        Number(style(".arrival-spark").opacity),
+    };
+  }, index);
+
+const pressNode = async (reducedMotion) => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage({
+      reducedMotion,
+      viewport: { width: 1280, height: 800 },
+    });
+    await tab.goto(`${origin}/`);
+    const index = await busiestNode(tab);
+    const hit = await (await tab.$$(".hero-network .hit"))[index].boundingBox();
+    const states = { rest: await nodeStyle(tab, index) };
+    await tab.mouse.move(hit.x + hit.width / 2, hit.y + hit.height / 2);
+    await tab.waitForTimeout(700);
+    states.hover = await nodeStyle(tab, index);
+    await tab.mouse.down();
+    await tab.waitForTimeout(100);
+    states.press = await nodeStyle(tab, index);
+    await tab.mouse.up();
+    await tab.waitForTimeout(450);
+    states.travelling = await nodeStyle(tab, index);
+    await tab.waitForTimeout(950);
+    states.arrived = await nodeStyle(tab, index);
+    await tab.waitForTimeout(1800);
+    states.after = await nodeStyle(tab, index);
+    return states;
+  } finally {
+    await browser.close();
+  }
+};
+
+test("a hero node grows under the pointer, flashes when pressed, and sends signals on release (R-HOME-6)", async () => {
+  const { rest, hover, press, travelling, after } =
+    await pressNode("no-preference");
+  assert.equal(rest.lift, "none");
+  assert.notEqual(hover.lift, "none");
+  assert.ok(!rest.signalShown && !hover.signalShown);
+  assert.ok(press.core > 0.5 && press.ring > 0.5 && press.signalShown);
+  assert.ok(travelling.signalShown);
+  assert.ok(travelling.signal < press.signal);
+  assert.ok(travelling.signal > after.signal);
+  assert.ok(!after.signalShown && after.core === 0 && after.ring === 0);
+});
+
+test("the nodes a signal reaches light up as it arrives, then fade (R-HOME-6)", async () => {
+  const { rest, press, travelling, arrived, after } =
+    await pressNode("no-preference");
+  assert.equal(rest.arrival, 0);
+  assert.equal(press.arrival, 0);
+  assert.equal(travelling.arrival, 0);
+  assert.ok(arrived.arrival > 0);
+  assert.equal(after.arrival, 0);
+});
+
+test("under reduced motion a pressed hero node sends no signal (R-HOME-6, R-WEB-4)", async () => {
+  const { press } = await pressNode("reduce");
+  assert.equal(press.signalDrawn, false);
 });

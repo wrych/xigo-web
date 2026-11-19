@@ -1,10 +1,19 @@
 ---
 /* Not NetworkScene: that one is a labelled, framed illustration with matches
  * travelling between clusters. This one is decoration, hidden from assistive
- * technology, so it shares only the seeded generator and the breathing. */
-import { BREATH_SECONDS, heroScene } from "../scene";
+ * technology, so it shares only the seeded generator and the breathing.
+ *
+ * Press and release need no script: pressing a node (:active) snaps its flash,
+ * signals and arrival sparks to their start with no transition; releasing it
+ * lets each ease back to rest, and that easing is the animation. At rest they
+ * are invisible, so nothing plays when the page loads. */
+import { BREATH_SECONDS, HERO_PULSE_CYCLE_SECONDS, heroScene } from "../scene";
 
-const { size, nodes, links } = heroScene();
+const { size, nodes, links, neighbours, pulses } = heroScene();
+const HIT_RADIUS = 9;
+const ARRIVAL_RADIUS = 2.6;
+const PULSE_SPARK_RADIUS = 7;
+const RING_GAP = 2;
 ---
 
 <svg
@@ -12,7 +21,7 @@ const { size, nodes, links } = heroScene();
   viewBox={`0 0 ${size} ${size}`}
   aria-hidden="true"
   focusable="false"
-  style={`--breath: ${BREATH_SECONDS}s`}
+  style={`--breath: ${BREATH_SECONDS}s; --pulse-cycle: ${HERO_PULSE_CYCLE_SECONDS}s`}
 >
   <defs>
     <radialGradient id="hero-glow">
@@ -26,21 +35,87 @@ const { size, nodes, links } = heroScene();
       <line x1={link.x1} y1={link.y1} x2={link.x2} y2={link.y2} />
     ))}
   </g>
-  <g>
-    {nodes.map((node) => (
-      <circle
-        class:list={[node.hub ? "hub" : "member"]}
-        cx={node.x}
-        cy={node.y}
-        r={node.r}
-        style={node.hub ? `--delay: ${node.delay}s` : undefined}
-      />
+  <g class="pulses">
+    {pulses.map((pulse) => (
+      <g style={`--delay: ${pulse.delay}s`}>
+        <line
+          class="pulse"
+          x1={pulse.x1}
+          y1={pulse.y1}
+          x2={pulse.x2}
+          y2={pulse.y2}
+          pathLength="100"
+        />
+        <circle
+          class="pulse-spark"
+          cx={pulse.x2}
+          cy={pulse.y2}
+          r={PULSE_SPARK_RADIUS}
+        />
+      </g>
     ))}
   </g>
+  {nodes.map((node, index) => (
+    <g class="node" style={`--delay: ${node.delay}s`}>
+      {neighbours[index].map((other) => (
+        <line
+          class="edge"
+          x1={node.x}
+          y1={node.y}
+          x2={nodes[other].x}
+          y2={nodes[other].y}
+        />
+      ))}
+      {neighbours[index].map((other) => (
+        <line
+          class="signal"
+          x1={node.x}
+          y1={node.y}
+          x2={nodes[other].x}
+          y2={nodes[other].y}
+          pathLength="100"
+        />
+      ))}
+      {neighbours[index].map((other) => (
+        <g class="arrival">
+          <circle
+            class="arrival-spark"
+            cx={nodes[other].x}
+            cy={nodes[other].y}
+            r={ARRIVAL_RADIUS}
+          />
+        </g>
+      ))}
+      <circle class="ring" cx={node.x} cy={node.y} r={node.r + RING_GAP} />
+      <g class="lift">
+        <circle
+          class:list={["dot", node.hub ? "hub" : "member"]}
+          cx={node.x}
+          cy={node.y}
+          r={node.r}
+        />
+        <circle class="core" cx={node.x} cy={node.y} r={node.r} />
+      </g>
+      <circle class="hit" cx={node.x} cy={node.y} r={HIT_RADIUS} />
+    </g>
+  ))}
 </svg>
 
 <style>
   .hero-network {
+    --ease-out: cubic-bezier(0.22, 0.7, 0.2, 1);
+    /* How long a signal takes to reach a joined node; the fades around its
+     * arrival are timed from it. */
+    --travel: 1.3s;
+    --arriving: calc(var(--travel) - 0.25s);
+    --arrived: calc(var(--travel) - 0.1s);
+    --hover-time: 0.6s;
+    --flash-time: 0.9s;
+    --ring-time: 1.2s;
+    --signal-fade: 0.35s;
+    --arrival-show: 0.2s;
+    --arrival-fade: 0.9s;
+    --signal-ease: cubic-bezier(0.45, 0, 0.2, 1);
     display: block;
     width: 100%;
     height: auto;
@@ -62,15 +137,152 @@ const { size, nodes, links } = heroScene();
     stroke-width: 0.7;
   }
 
+  .pulse {
+    stroke: var(--accent);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 6 200;
+    stroke-dashoffset: 6;
+    opacity: 0;
+    animation: travel var(--pulse-cycle) var(--delay) ease-in-out infinite;
+  }
+
+  .pulse-spark {
+    fill: var(--accent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: land var(--pulse-cycle) var(--delay) ease-out infinite;
+  }
+
+  .dot,
+  .lift,
+  .ring,
+  .arrival-spark {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
   .member {
     fill: var(--muted);
+    animation: glimmer var(--breath) var(--delay) ease-in-out infinite;
   }
 
   .hub {
     fill: var(--accent);
-    transform-box: fill-box;
-    transform-origin: center;
     animation: breathe var(--breath) var(--delay) ease-in-out infinite;
+  }
+
+  /* Only the hit circles take the pointer: everything else is drawn on top
+   * of other nodes and must not steal their hover. */
+  .hero-network * {
+    pointer-events: none;
+  }
+
+  .hero-network .hit {
+    fill: transparent;
+    pointer-events: all;
+    cursor: pointer;
+  }
+
+  .lift {
+    transition: transform var(--hover-time) var(--ease-out);
+  }
+
+  .edge {
+    stroke: var(--accent);
+    stroke-width: 0.8;
+    stroke-opacity: 0;
+    transition: stroke-opacity var(--hover-time) var(--ease-out);
+  }
+
+  .node:hover .lift {
+    transform: scale(1.6);
+  }
+
+  .node:hover .edge {
+    stroke-opacity: 0.45;
+  }
+
+  .core {
+    fill: var(--text);
+    opacity: 0;
+    transition: opacity var(--flash-time) var(--ease-out);
+  }
+
+  .ring {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 0.6;
+    opacity: 0;
+    transform: scale(4);
+    transition:
+      transform var(--ring-time) var(--ease-out),
+      opacity var(--ring-time) var(--ease-out);
+  }
+
+  .signal {
+    stroke: var(--accent);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-dasharray: 7 200;
+    stroke-dashoffset: -100;
+    opacity: 0;
+    transition:
+      stroke-dashoffset var(--travel) var(--signal-ease),
+      opacity var(--signal-fade) ease var(--arriving);
+  }
+
+  .arrival {
+    opacity: 1;
+    transition: opacity var(--arrival-show) ease var(--arriving);
+  }
+
+  .arrival-spark {
+    fill: var(--accent);
+    opacity: 0;
+    transform: scale(2.2);
+    transition:
+      opacity var(--arrival-fade) ease-out var(--arrived),
+      transform var(--arrival-fade) var(--ease-out) var(--arrived);
+  }
+
+  .node:active .core {
+    opacity: 0.85;
+    transition: none;
+  }
+
+  .node:active .ring {
+    opacity: 0.7;
+    transform: scale(1);
+    transition: none;
+  }
+
+  .node:active .signal {
+    stroke-dashoffset: 7;
+    opacity: 0.9;
+    transition: none;
+  }
+
+  .node:active .arrival {
+    opacity: 0;
+    transition: none;
+  }
+
+  .node:active .arrival-spark {
+    opacity: 0.45;
+    transform: scale(1);
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulses,
+    .signal,
+    .arrival,
+    .ring,
+    .core {
+      display: none;
+    }
   }
 
   @keyframes breathe {
@@ -82,6 +294,50 @@ const { size, nodes, links } = heroScene();
     50% {
       transform: scale(1.4);
       opacity: 1;
+    }
+  }
+
+  @keyframes glimmer {
+    0%,
+    100% {
+      fill-opacity: 0.6;
+    }
+    50% {
+      fill-opacity: 1;
+    }
+  }
+
+  @keyframes travel {
+    0% {
+      stroke-dashoffset: 6;
+      opacity: 0;
+    }
+    3% {
+      opacity: 0.8;
+    }
+    24% {
+      opacity: 0.8;
+    }
+    28%,
+    100% {
+      stroke-dashoffset: -100;
+      opacity: 0;
+    }
+  }
+
+  @keyframes land {
+    0%,
+    25% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+    28% {
+      opacity: 0.35;
+    }
+    42%,
+    100% {
+      opacity: 0;
+      transform: scale(1.5);
     }
   }
 </style>
