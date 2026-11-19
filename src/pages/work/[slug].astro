@@ -100,7 +100,7 @@ if (scene && sceneAfter) {
       </dl>
     </section>
 
-    <div class="body">
+    <div class="body node-bullets">
       {around ? (
         <>
           <Fragment set:html={around[0]} />
@@ -187,7 +187,7 @@ if (scene && sceneAfter) {
     align-items: center;
     padding: 0 28px;
     border-radius: 999px;
-    background: var(--accent);
+    background: var(--text);
     color: var(--ground);
     font-size: 15px;
     font-weight: 500;
@@ -297,10 +297,6 @@ if (scene && sceneAfter) {
 
   .body :global(li) {
     margin-bottom: 12px;
-  }
-
-  .body :global(li::marker) {
-    color: var(--accent);
   }
 
   .body :global(strong) {

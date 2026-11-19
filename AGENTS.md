@@ -17,6 +17,7 @@ specs/
   content.md        the shape of a post and a project file
 docs/
   constitution.md   what this project adds to the xigo base rules
+  brand.md          the wordmark, the node, the palette
   adr/              decisions about xigo-web
 content/journal/    one folder per post: index.md and its images (ADR 0003)
 src/                the Astro site (ADR 0006)

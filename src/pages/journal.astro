@@ -25,8 +25,9 @@ const { lead, rest } = journalOrder(posts);
       <CoverArt slug={lead.id} topic={lead.data.topic} />
       <span class="lead-text">
         <span class="label">
-          <span class="dot">{lead.data.featured ? "Featured" : "Latest"}</span>{" "}
-          · {TOPICS[lead.data.topic]} · {formatDate(lead.data.date)}
+          <span class="node" aria-hidden="true" />{" "}
+          {lead.data.featured ? "Featured" : "Latest"} ·{" "}
+          {TOPICS[lead.data.topic]} · {formatDate(lead.data.date)}
         </span>
         <span class="lead-title">{lead.data.title}</span>
         <span class="muted">{lead.data.excerpt}</span>
