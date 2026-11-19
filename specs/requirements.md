@@ -32,13 +32,17 @@ xigo.ch, as served to a visitor.
   reading time.
 - **R-HOME-5** Home ends with a contact section whose address is
   `info@xigo.ch`, as a `mailto:` link.
-- **R-HOME-6** Home's opening statement stands beside an illustration of a
-  network, drawn in SVG and CSS at build time, so it needs no JavaScript. It is
-  decorative: hidden from assistive technology, left out at phone width, and
-  still under reduced motion (R-WEB-4). Its nodes breathe and soft pulses
-  travel along a few of its lines. A node grows a little under the pointer;
-  pressed, it flashes, and on release signals travel from it to the nodes it
-  is joined to, which light up as each signal arrives.
+- **R-HOME-6** Home's opening statement stands beside a picture of xigo's
+  idea: several communities, each a cluster of people, and a few golden people
+  bridging them — the people who bring people together. It is drawn in SVG and
+  CSS at build time, so it needs no JavaScript. It is decorative: hidden from
+  assistive technology, left out at phone width, and still under reduced
+  motion (R-WEB-4). Its nodes breathe and soft pulses travel along a few of its
+  lines. A node grows a little under the pointer; pressed, it flashes, and on
+  release signals travel from it to the nodes it is joined to, which light up
+  as each signal arrives, so a golden person's signals run into each community
+  they join. This network is xigo's own picture; a project's image shows the
+  project (R-WORK-5).
 - **R-HOME-7** Each section of Home takes one of three treatments: statement
   (large type on the dark ground: the opening and the focus areas), showcase
   (the featured project, its image running to the edge of the window on one
@@ -56,10 +60,18 @@ xigo.ch, as served to a visitor.
   page (`/work/topic/<topic>`) with the filtered list (ADR 0008).
 - **R-WORK-3** A project page shows the project's text and, where it has one,
   a link to its source code and its license.
-- **R-WORK-4** A project page may open with an animated scene in place of its
-  image. The scene is drawn in SVG and CSS, so it needs no JavaScript; it has a
-  text label, says that it is an illustration and not real data, and stands
-  still under reduced motion (R-WEB-4). Its image stays the still used on Work.
+- **R-WORK-4** A project page may show an animated scene within its text,
+  after the section the project names, where the text explains how it works.
+  The scene is drawn in SVG and CSS, so it needs no JavaScript; it has a text
+  label, says that it is an illustration and not real data, and stands still
+  under reduced motion (R-WEB-4). Its image stays the still used on Work and
+  Home.
+- **R-WORK-5** A project's image shows the product itself, such as its real
+  screens, not xigo's network. A project page opens, directly under its title,
+  summary and source link, with the product: its opening image if it has one,
+  otherwise its image. With it, a strip of facts from the front matter names
+  those the project has, and only those: the year, where and when it launched,
+  its license, and who made it, with each one's part.
 - **R-WORK-6** Work ends with an invitation to the next project: who xigo
   helps — events, communities, non-profits and foundations, pro bono and in the
   open — and the contact address `info@xigo.ch` as a `mailto:` link.

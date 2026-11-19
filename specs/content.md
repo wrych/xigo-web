@@ -44,13 +44,26 @@ title: Rebel Match
 year: 2026
 summary: "Peer matching for the Corporate Rebels network: bring an organizational challenge, get matched in a conference break."
 topics: [events, communities, open-source] # from: events, communities, organisations, open-source
-image: ./cover.png # beside the project; also the still for Work
+image: ./cover.png # beside the project; the still for Work and Home: the product, not xigo's network (R-WORK-5)
 imageAlt: "…"
-scene: network # optional: an animated scene instead of the image (R-WORK-4)
+opening: # optional: the image the page opens with, instead of the image (R-WORK-5)
+  image: ./screens.png
+  alt: "…"
+  caption: "…" # optional
+scene: network # optional: an animated scene within the text (R-WORK-4)
+sceneAfter: what-it-leads-to # optional, with scene: the section (its heading's id) the scene ends; without it, the scene follows the text
 figures: # optional: images shown after the text, beside the project
-  - image: ./screens.png
+  - image: ./more.png
     alt: "…"
     caption: "…" # optional
+launch: # optional: where and when it launched, for the facts strip (R-WORK-5)
+  date: 2026-11-08
+  event: Corporate Rebels summit
+  stage: beta # optional
+team: # optional: who made it and their part, for the facts strip (R-WORK-5)
+  - name: Pascal Dulex
+    organisation: Transformation Architects # optional
+    part: Idea, design and community
 source: https://github.com/wrych/rebel-match # optional
 license: MIT # optional
 featured: true # at most one project is featured
@@ -58,7 +71,9 @@ draft: false # R-CONT-3, not yet supported: until it is, a project with it fails
 ---
 ```
 
-The scenes are listed in `src/work.ts`; `network` is the one there is.
+The scenes are listed in `src/work.ts`; `network` is the one there is. The facts
+strip shows only what these fields hold; a fact the project's sources do not
+give is left out, not guessed (constitution §A).
 
 ## A profile
 
