@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { createServer } from "node:net";
 import { readdirSync } from "node:fs";
-import { chromium } from "playwright";
+import { launchChromium } from "./browser.mjs";
 import { fileURLToPath } from "node:url";
 import { coverSvg } from "../src/covers.ts";
 
@@ -509,7 +509,7 @@ test("the Rebel Match facts come from its page (R-WORK-5)", async () => {
 });
 
 test("the network scene stands still under reduced motion (R-WEB-4)", async () => {
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const tab = await browser.newPage({ reducedMotion: "reduce" });
     await tab.goto(`${origin}/work/rebel-match`);
@@ -535,7 +535,7 @@ test("a profile with a LinkedIn address links it (R-ABOUT-4)", async () => {
 const PHONE = { width: 360, height: 740 };
 
 test("no page scrolls sideways at phone width, covers included (R-WEB-3)", async () => {
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const tab = await browser.newPage({ viewport: PHONE });
     for (const path of [
@@ -610,7 +610,7 @@ test("Home's statement stands beside a decorative network (R-HOME-6)", async () 
 });
 
 const heroNetwork = async (options) => {
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const tab = await browser.newPage(options);
     await tab.goto(`${origin}/`);
@@ -676,7 +676,7 @@ const nodeStyle = (tab, index) =>
   }, index);
 
 const pressNode = async (reducedMotion) => {
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const tab = await browser.newPage({
       reducedMotion,
