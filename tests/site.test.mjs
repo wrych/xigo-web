@@ -203,7 +203,10 @@ test("the journal leads with the featured post, then all others newest first (R-
 
 test("the lead post is called featured only when it is (R-JOUR-1)", async () => {
   const { html } = await page("/journal");
-  assert.match(region(html, "main"), /<span class="dot"[^>]*>Featured<\/span>/);
+  assert.match(
+    region(html, "main"),
+    /<span class="node"[^>]*><\/span>\s*Featured/,
+  );
 });
 
 test("a topic page lists only that topic, and marks its filter (R-JOUR-2)", async () => {

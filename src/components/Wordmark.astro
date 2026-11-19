@@ -1,0 +1,50 @@
+---
+/**
+ * The xigo wordmark, drawn from the brand sheet (docs/brand.md, R-WEB-8): its
+ * letters take the link's colour, its node the accent.
+ */
+import { MARK } from "../brand";
+
+interface Props {
+  height: number;
+}
+
+const { height } = Astro.props;
+const width = Math.round((MARK.width / MARK.height) * height * 10) / 10;
+---
+
+<svg
+  class="wordmark-drawing"
+  viewBox={`0 0 ${MARK.width} ${MARK.height}`}
+  width={width}
+  height={height}
+  role="img"
+  aria-label="xigo"
+>
+  <path class="mark-x" fill="currentColor" d={MARK.x}></path>
+  <path class="mark-letters" fill="currentColor" d={MARK.letters}></path>
+  <circle
+    class="mark-node"
+    fill="#e6c79c"
+    cx={MARK.node.cx}
+    cy={MARK.node.cy}
+    r={MARK.node.r}
+  ></circle>
+</svg>
+
+<style>
+  .wordmark-drawing {
+    display: block;
+    overflow: visible;
+  }
+
+  .mark-node {
+    fill: var(--accent);
+  }
+
+  @media (forced-colors: active) {
+    .mark-node {
+      fill: currentColor;
+    }
+  }
+</style>

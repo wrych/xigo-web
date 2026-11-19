@@ -4,6 +4,7 @@ import "@fontsource/inter/500.css";
 import "@fontsource/space-grotesk/300.css";
 import "@fontsource/space-grotesk/400.css";
 import "../styles/global.css";
+import Wordmark from "../components/Wordmark.astro";
 import {
   CONTACT_HREF,
   LICENSE_LINE,
@@ -50,7 +51,7 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
           href="/"
           aria-current={isCurrent("/", path) ? "page" : undefined}
         >
-          xigo<span class="dot">.</span>
+          <Wordmark height={20} />
         </a>
         <nav aria-label="Main">
           {PAGES.map((page) => (
@@ -59,6 +60,9 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
               aria-current={isCurrent(page.href, path) ? "page" : undefined}
             >
               {page.label}
+              {isCurrent(page.href, path) && (
+                <span class="node current" aria-hidden="true" />
+              )}
             </a>
           ))}
           <a class="pill" href={CONTACT_HREF}>
@@ -72,8 +76,8 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
       </main>
 
       <footer class="site-footer">
-        <a class="wordmark small" href="/">
-          xigo<span class="dot">.</span>
+        <a class="wordmark" href="/">
+          <Wordmark height={16} />
         </a>
         <nav aria-label="Footer">
           {PAGES.map((page) => (
@@ -111,6 +115,7 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
   }
 
   .site-header nav a {
+    position: relative;
     color: var(--muted);
   }
 
@@ -120,14 +125,16 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
   }
 
   .wordmark {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 22px;
-    letter-spacing: -0.02em;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
-  .wordmark.small {
-    font-size: 18px;
+  .current {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    translate: -50% 0;
   }
 
   .pill {

@@ -38,7 +38,8 @@ const topics = (project: {
   <section class="hero">
     <div class="statement">
       <p class="label">
-        <span class="dot">●</span> Pro bono · Events · Communities · Foundations
+        <span class="node" aria-hidden="true"></span> Pro bono · Events ·
+        Communities · Foundations
       </p>
       <h1>Software for the people who bring people together.</h1>
       <p class="lead muted">
@@ -88,7 +89,11 @@ const topics = (project: {
         />
         <span class="text">
           <span class="label">
-            {lead.data.featured && <span class="dot">Featured · </span>}
+            {lead.data.featured && (
+              <>
+                <span class="node" aria-hidden="true" /> Featured ·{" "}
+              </>
+            )}
             {lead.data.year} · {topics(lead)}
           </span>
           <span class="title">{lead.data.title}</span>
