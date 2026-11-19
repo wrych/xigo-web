@@ -258,6 +258,29 @@ test("the home page lists the three newest posts (R-HOME-4)", async () => {
   ]);
 });
 
+test("each home post shows author and reading time, the next two a cover (R-HOME-4)", async () => {
+  const { html } = await page("/");
+  const journal = html.slice(
+    html.indexOf('id="journal-heading"'),
+    html.indexOf('id="contact"'),
+  );
+  const metas = [
+    ...journal.matchAll(
+      /Ivo Pejakovic · <time datetime="[0-9-]+"[^>]*>[^<]+<\/time> · \d+ min/g,
+    ),
+  ];
+  assert.equal(metas.length, 3);
+  assert.equal([...journal.matchAll(/<img\b/g)].length, 2);
+});
+
+test("a home post without a cover shows its excerpt in the cover's place (R-HOME-4)", async () => {
+  const { html } = await page("/");
+  assert.match(
+    html,
+    /class="text-cover"[^>]*>[\s\S]*?class="line"[^>]*>Consent is not consensus\.</,
+  );
+});
+
 const PEOPLE = readdirSync(new URL("../content/people", import.meta.url));
 
 test("About links every founder's profile (R-ABOUT-4)", async () => {

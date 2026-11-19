@@ -4,10 +4,9 @@ import { TOPICS, formatDate } from "../journal";
 
 interface Props {
   posts: CollectionEntry<"journal">[];
-  excerpts?: boolean;
 }
 
-const { posts, excerpts = true } = Astro.props;
+const { posts } = Astro.props;
 ---
 
 <ul class="posts">
@@ -19,7 +18,7 @@ const { posts, excerpts = true } = Astro.props;
         </time>
         <span class="text">
           <span class="title">{post.data.title}</span>
-          {excerpts && <span class="excerpt">{post.data.excerpt}</span>}
+          <span class="excerpt">{post.data.excerpt}</span>
         </span>
         <span class="topic">{TOPICS[post.data.topic]}</span>
       </a>
