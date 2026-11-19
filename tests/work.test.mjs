@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { showcase, splitAfterSection, workOrder } from "../src/work.ts";
+import {
+  projectFacts,
+  showcase,
+  splitAfterSection,
+  workOrder,
+} from "../src/work.ts";
 import {
   MATCH_CYCLE_SECONDS,
   SCENE_HEIGHT,
@@ -166,7 +171,6 @@ test("the hero's idle pulses travel along its lines, within one cycle (R-HOME-6)
     assert.ok(pulse.delay < HERO_PULSE_CYCLE_SECONDS);
   }
 });
-
 const TEXT =
   '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p><h2 id="two">Two</h2><p>c</p>';
 
@@ -195,4 +199,53 @@ test("a scene after a heading that is not there is a content error naming it (R-
     () => splitAfterSection(TEXT, "c++"),
     /sceneAfter: "c\+\+" names no heading/,
   );
+});
+
+const date = (value) => value.toISOString().slice(0, 10);
+
+test("the facts strip says only what the front matter holds (R-WORK-5)", () => {
+  assert.deepEqual(projectFacts({ year: 2024 }, date), [
+    { label: "Year", values: [{ text: "2024" }] },
+  ]);
+  assert.deepEqual(
+    projectFacts(
+      {
+        year: 2026,
+        license: "MIT",
+        launch: { date: new Date("2026-11-08"), event: "A summit" },
+        team: [],
+      },
+      date,
+    ).map((fact) => fact.label),
+    ["Year", "Launched", "License"],
+  );
+});
+
+test("the facts strip names the launch, its stage, and who made what (R-WORK-5)", () => {
+  const facts = projectFacts(
+    {
+      year: 2026,
+      launch: {
+        date: new Date("2026-11-08"),
+        event: "A summit",
+        stage: "beta",
+      },
+      team: [
+        { name: "A Person", organisation: "An Org", part: "Design" },
+        { name: "B Person", part: "Engineering" },
+      ],
+    },
+    date,
+  );
+  assert.deepEqual(facts[1], {
+    label: "Beta launched",
+    values: [{ text: "2026-11-08", note: "A summit" }],
+  });
+  assert.deepEqual(facts[2], {
+    label: "Made by",
+    values: [
+      { text: "A Person, An Org", note: "Design" },
+      { text: "B Person", note: "Engineering" },
+    ],
+  });
 });

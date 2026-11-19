@@ -52,8 +52,16 @@ const work = defineCollection({
     base: "./content/work",
     generateId: ({ entry }) => entry.split("/")[0],
   }),
-  schema: ({ image }) =>
-    z
+  schema: ({ image }) => {
+    const figure = () =>
+      z
+        .object({
+          image: image(),
+          alt: z.string().min(1),
+          caption: z.string().min(1).optional(),
+        })
+        .strict();
+    return z
       .object({
         title: z.string().min(1),
         year: z.number().int(),
@@ -67,19 +75,29 @@ const work = defineCollection({
           .min(1),
         image: image(),
         imageAlt: z.string().min(1),
+        opening: figure().optional(),
         scene: z.enum(SCENES).optional(),
         sceneAfter: z.string().min(1).optional(),
-        figures: z
+        figures: z.array(figure()).default([]),
+        launch: z
+          .object({
+            date: z.coerce.date(),
+            event: z.string().min(1),
+            stage: z.string().min(1).optional(),
+          })
+          .strict()
+          .optional(),
+        team: z
           .array(
             z
               .object({
-                image: image(),
-                alt: z.string().min(1),
-                caption: z.string().min(1).optional(),
+                name: z.string().min(1),
+                organisation: z.string().min(1).optional(),
+                part: z.string().min(1),
               })
               .strict(),
           )
-          .default([]),
+          .optional(),
         source: z.url().optional(),
         license: z.string().min(1).optional(),
         featured: z.boolean().default(false),
@@ -92,7 +110,8 @@ const work = defineCollection({
           message: "sceneAfter needs a scene (R-WORK-4)",
           path: ["sceneAfter"],
         },
-      ),
+      );
+  },
 });
 
 export const collections = { journal, people, work };

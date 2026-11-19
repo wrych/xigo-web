@@ -66,3 +66,51 @@ export function splitAfterSection(html: string, id: string): [string, string] {
     : html.length;
   return [html.slice(0, at), html.slice(at)];
 }
+
+/** What the facts strip can say about a project (specs/content.md). */
+export interface ProjectFactsSource {
+  year: number;
+  license?: string;
+  launch?: { date: Date; event: string; stage?: string };
+  team?: { name: string; organisation?: string; part: string }[];
+}
+
+export interface Fact {
+  label: string;
+  values: { text: string; note?: string }[];
+}
+
+const capitalise = (text: string) => text[0].toUpperCase() + text.slice(1);
+
+/** The facts strip: only the facts the front matter holds, in a fixed
+ * order (R-WORK-5). Nothing is filled in that is not there. */
+export function projectFacts(
+  project: ProjectFactsSource,
+  formatDate: (date: Date) => string,
+): Fact[] {
+  const facts: Fact[] = [
+    { label: "Year", values: [{ text: String(project.year) }] },
+  ];
+  if (project.launch) {
+    const { date, event, stage } = project.launch;
+    facts.push({
+      label: stage ? `${capitalise(stage)} launched` : "Launched",
+      values: [{ text: formatDate(date), note: event }],
+    });
+  }
+  if (project.license) {
+    facts.push({ label: "License", values: [{ text: project.license }] });
+  }
+  if (project.team && project.team.length > 0) {
+    facts.push({
+      label: "Made by",
+      values: project.team.map((person) => ({
+        text: person.organisation
+          ? `${person.name}, ${person.organisation}`
+          : person.name,
+        note: person.part,
+      })),
+    });
+  }
+  return facts;
+}

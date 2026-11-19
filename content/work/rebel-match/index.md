@@ -5,15 +5,27 @@ summary: "Peer matching for the Corporate Rebels network: bring an organizationa
 topics: [events, communities, open-source]
 image: ./cover.png
 imageAlt: 'Three phone screens from the Rebel Match app, filled with its made-up sample members and fanned out on an orange ground, under the words "Sample members, not real people". In the middle, a member''s challenge and their matches, "Same boat: Rebels facing this now"; on the left, a welcome with "Ask for help" and "Offer help"; on the right, another member''s challenge on a card, with the answers "Same boat" and "Been there".'
+opening:
+  image: ./screens.png
+  alt: 'Three phone screens from Rebel Match. The first welcomes a member and offers two choices, "Ask for help" and "Offer help". The second shows a challenge someone wrote and, under "Your matches", a peer in the same boat with a button to connect. The third shows another member''s challenge on a card, with the answers "Same boat", "Been there", "Follow topic" and "Skip".'
+  caption: "Screens from the Rebel Match app, filled with its made-up sample members."
 scene: network
 sceneAfter: what-it-leads-to
+launch:
+  date: 2026-11-08
+  event: Corporate Rebels summit
+  stage: beta
+team:
+  - name: Pascal Dulex
+    organisation: Transformation Architects
+    part: Idea, design and community
+  - name: Andy Moesch
+    part: Engineering
+  - name: Ivo Pejakovic
+    part: User experience and testing
 source: https://github.com/wrych/rebel-match
 license: MIT
 featured: true
-figures:
-  - image: ./screens.png
-    alt: 'Three phone screens from Rebel Match. The first welcomes a member and offers two choices, "Ask for help" and "Offer help". The second shows a challenge someone wrote and, under "Your matches", a peer in the same boat with a button to connect. The third shows another member''s challenge on a card, with the answers "Same boat", "Been there", "Follow topic" and "Skip".'
-    caption: "Screens from the Rebel Match app, filled with its made-up sample members."
 ---
 
 ## Nobody should face a hard change alone

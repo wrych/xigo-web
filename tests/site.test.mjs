@@ -478,6 +478,33 @@ test("the Rebel Match page keeps the scene for how matching works (R-WORK-4)", a
   assert.ok(how > 0 && how < scene && scene < trust);
 });
 
+test("the Rebel Match page opens with its screens, before its text (R-WORK-5)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  const screens = main.search(
+    /<img[^>]*alt="Three phone screens from Rebel Match/,
+  );
+  const text = main.indexOf('id="nobody-should-face-a-hard-change-alone"');
+  assert.ok(screens > main.indexOf("</h1>") && screens < text);
+});
+
+test("the Rebel Match facts come from its page (R-WORK-5)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const strip = /<dl class="facts[\s\S]*?<\/dl>/.exec(html)[0];
+  for (const fact of [
+    "2026",
+    "Beta launched",
+    "8 Nov 2026",
+    "Corporate Rebels summit",
+    "MIT",
+    "Pascal Dulex, Transformation Architects",
+    "Andy Moesch",
+    "Ivo Pejakovic",
+  ]) {
+    assert.ok(strip.includes(fact), fact);
+  }
+});
+
 test("the network scene stands still under reduced motion (R-WEB-4)", async () => {
   const browser = await chromium.launch();
   try {
