@@ -4,8 +4,6 @@ date: 2024-11-15
 author: Andy Moesch
 topic: software
 excerpt: "I recently read the book Homo Sapiens by Yuval Noah Harari."
-cover: ./cover.png
-coverAlt: "software exploration"
 original:
   site: LinkedIn
   date: 2021-05-01

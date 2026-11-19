@@ -68,6 +68,11 @@ for (const [name, fields, field] of [
   ["an unknown topic", { ...valid, topic: "gossip" }, "topic"],
   ["an unknown author", { ...valid, author: "Someone Else" }, "author"],
   ["an unknown field", { ...valid, draft: "true" }, "draft"],
+  [
+    "a cover, now generated (R-JOUR-6)",
+    { ...valid, cover: "./x.png" },
+    "cover",
+  ],
 ]) {
   test(`${name} fails the build, naming the file and the field (R-CONT-2)`, () => {
     const clean = Object.fromEntries(
@@ -81,42 +86,19 @@ for (const [name, fields, field] of [
   });
 }
 
-const aCover = {
+const anImage = {
   "cover.png": join(
     repo,
     "content/journal/navigating-change-finding-your-voice-in-a-complex-world/cover.png",
   ),
 };
 
-test("a cover with its alt text passes", () => {
-  const post = frontMatter({
-    ...valid,
-    cover: "./cover.png",
-    coverAlt: '"A cover"',
-  });
-  const result = sync(projectWith(post, aCover));
-  assert.equal(result.status, 0, result.stdout + result.stderr);
-});
-
-for (const [name, fields] of [
-  ["a cover without alt text", { ...valid, cover: "./cover.png" }],
-  ["alt text without a cover", { ...valid, coverAlt: '"A cover"' }],
-]) {
-  test(`${name} fails the build (R-CONT-5)`, () => {
-    const result = sync(projectWith(frontMatter(fields), aCover));
-    const output = result.stdout + result.stderr;
-    assert.notEqual(result.status, 0);
-    assert.match(output, /a-post/);
-    assert.match(output, /coverAlt/);
-  });
-}
-
 test("an image in a post without alt text fails the build (R-CONT-5)", () => {
   const post = frontMatter(valid).replace(
     /Text\.\n$/,
     "![][picture]\n\n[picture]: ./cover.png\n",
   );
-  const result = build(projectWith(post, aCover));
+  const result = build(projectWith(post, anImage));
   const output = result.stdout + result.stderr;
   assert.notEqual(result.status, 0);
   assert.match(
@@ -130,7 +112,7 @@ test("an image in a post with alt text builds", () => {
     /Text\.\n$/,
     "![A cover](./cover.png)\n",
   );
-  const result = build(projectWith(post, aCover));
+  const result = build(projectWith(post, anImage));
   assert.equal(result.status, 0, result.stdout + result.stderr);
 });
 

@@ -1,6 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
-import Cover from "../components/Cover.astro";
+import CoverArt from "../components/CoverArt.astro";
 import PageIntro from "../components/PageIntro.astro";
 import PostList from "../components/PostList.astro";
 import TopicFilter from "../components/TopicFilter.astro";
@@ -22,13 +22,7 @@ const { lead, rest } = journalOrder(posts);
 
   {lead && (
     <a class="lead" href={`/journal/${lead.id}`}>
-      {lead.data.cover && lead.data.coverAlt && (
-        <Cover
-          src={lead.data.cover}
-          alt={lead.data.coverAlt}
-          sizes="(min-width: 1000px) 560px, 100vw"
-        />
-      )}
+      <CoverArt slug={lead.id} topic={lead.data.topic} />
       <span class="lead-text">
         <span class="label">
           <span class="dot">{lead.data.featured ? "Featured" : "Latest"}</span>{" "}

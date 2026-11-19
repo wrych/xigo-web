@@ -4,8 +4,6 @@ date: 2024-12-03
 author: Ivo Pejakovic
 topic: change
 excerpt: "In today’s ever-changing and complex world, adaptability and flexibility are crucial."
-cover: ./cover.png
-coverAlt: "voice in a complex world"
 original:
   site: LinkedIn
   date: 2024-11-26
