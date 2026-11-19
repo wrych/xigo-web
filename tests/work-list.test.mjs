@@ -40,3 +40,20 @@ test("Home shows the featured project large, then two more (R-HOME-3)", () => {
   assert.match(work, /class="project-lead[" ][^]*href="\/work\/featured"/);
   assert.match(work, /href="\/work"/);
 });
+
+test("each project on Work leads with its image, the featured one first (R-WORK-7)", () => {
+  const html = main(read("work"));
+  const items = html.split(/<li\b/).slice(1);
+  assert.equal(items.length, 4);
+  assert.match(items[0], /^[^>]*class="[^"]*\bfeatured\b/);
+  for (const item of items.slice(1)) {
+    assert.doesNotMatch(item, /^[^>]*class="[^"]*\bfeatured\b/);
+  }
+  for (const item of items) {
+    assert.ok(
+      item.indexOf("<img") >= 0 &&
+        item.indexOf("<img") < item.indexOf('class="title'),
+      "the image comes before the title",
+    );
+  }
+});

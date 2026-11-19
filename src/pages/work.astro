@@ -21,45 +21,75 @@ const projects = await allProjects();
           <Cover
             src={project.data.image}
             alt={project.data.imageAlt}
-            sizes="(min-width: 1000px) 640px, 100vw"
+            sizes="100vw"
           />
           <span class="text">
-            <span class="label">
-              {project.data.featured && <span class="dot">Featured · </span>}
-              {project.data.year} ·{" "}
-              {project.data.topics
-                .map((topic) => PROJECT_TOPICS[topic])
-                .join(" · ")}
+            <span class="head">
+              <span class="label">
+                {project.data.featured && <span class="dot">Featured · </span>}
+                {project.data.year} ·{" "}
+                {project.data.topics
+                  .map((topic) => PROJECT_TOPICS[topic])
+                  .join(" · ")}
+              </span>
+              <span class="title">{project.data.title}</span>
             </span>
-            <span class="title">{project.data.title}</span>
-            <span class="muted">{project.data.summary}</span>
+            <span class="summary muted">{project.data.summary}</span>
           </span>
         </a>
       </li>
     ))}
   </ul>
+
+  <section class="invite" aria-labelledby="invite-heading">
+    <h2 id="invite-heading">Open for the next one.</h2>
+    <div class="invite-text">
+      <p>
+        We build tools and share practices for events, communities, non-profits
+        and foundations — pro bono, and in the open. Tell us what you’re working
+        on.
+      </p>
+      <a class="mail" href="mailto:info@xigo.ch">
+        info@xigo.ch
+      </a>
+    </div>
+  </section>
 </Base>
 
 <style>
   .projects {
     list-style: none;
     margin: 0;
-    padding: 0 0 128px;
+    padding: 0 0 clamp(80px, 10vw, 128px);
     display: flex;
     flex-direction: column;
-    gap: 64px;
+    gap: clamp(80px, 10vw, 128px);
   }
 
   li a {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-    gap: 32px 48px;
-    align-items: center;
-    padding-top: 48px;
-    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* The featured image runs out to the window, and keeps its rounded
+   * corners only on the side still inside the column (R-WORK-7). */
+  .featured :global(.cover) {
+    margin-right: calc(-1 * var(--bleed));
+  }
+
+  .featured :global(.cover img) {
+    border-radius: 24px 0 0 24px;
   }
 
   .text {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 24px 48px;
+    align-items: end;
+  }
+
+  .head {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -67,13 +97,62 @@ const projects = await allProjects();
 
   .title {
     font-family: var(--font-display);
-    font-size: clamp(36px, 5vw, 64px);
-    line-height: 1;
-    letter-spacing: -0.04em;
+    font-size: clamp(40px, 6vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .summary {
+    max-width: 460px;
+    font-size: 18px;
+    text-wrap: pretty;
   }
 
   li a:hover .title,
   li a:focus-visible .title {
     color: var(--accent);
+  }
+
+  /* Dashed, like an empty slot: the place of the next project (R-WORK-6). */
+  .invite {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 32px 48px;
+    align-items: end;
+    margin-bottom: clamp(80px, 10vw, 128px);
+    padding: clamp(32px, 6vw, 72px);
+    border: 1px dashed var(--line-strong);
+    border-radius: 24px;
+    background: var(--surface);
+  }
+
+  .invite h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .invite-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+  }
+
+  .invite p {
+    margin: 0;
+    max-width: 460px;
+    font-size: 18px;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .mail {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 3vw, 36px);
+    letter-spacing: -0.02em;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
   }
 </style>

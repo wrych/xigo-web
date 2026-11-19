@@ -39,6 +39,14 @@ xigo.ch, as served to a visitor.
   travel along a few of its lines. A node grows a little under the pointer;
   pressed, it flashes, and on release signals travel from it to the nodes it
   is joined to, which light up as each signal arrives.
+- **R-HOME-7** Each section of Home takes one of three treatments: statement
+  (large type on the dark ground: the opening and the focus areas), showcase
+  (the featured project, its image running to the edge of the window on one
+  side) and reading (the journal, on a lighter surface). Where the surface
+  changes between two sections, no line separates them. The contact section
+  (R-HOME-5) is the page's climax: a band the full width of the window, light
+  with dark text, with the address set large. Neither scrolls sideways
+  (R-WEB-3).
 
 ## Work (R-WORK)
 
@@ -52,6 +60,12 @@ xigo.ch, as served to a visitor.
   image. The scene is drawn in SVG and CSS, so it needs no JavaScript; it has a
   text label, says that it is an illustration and not real data, and stands
   still under reduced motion (R-WEB-4). Its image stays the still used on Work.
+- **R-WORK-6** Work ends with an invitation to the next project: who xigo
+  helps — events, communities, non-profits and foundations, pro bono and in the
+  open — and the contact address `info@xigo.ch` as a `mailto:` link.
+- **R-WORK-7** Work shows each project led by its image, as wide as the page's
+  column, with its title set large beneath; the featured project's image runs
+  to the edge of the window on one side, without scrolling sideways (R-WEB-3).
 
 ## Journal (R-JOUR)
 

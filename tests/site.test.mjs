@@ -107,6 +107,51 @@ test("the contact heading keeps the space between its two sentences (R-HOME-5)",
   assert.match(html, /foundation\? <span/);
 });
 
+test("Home names the three focus areas, in order, right after the opening (R-HOME-2)", async () => {
+  const { html } = await page("/");
+  const focus = html.slice(
+    html.indexOf('aria-labelledby="focus-heading"'),
+    html.indexOf('aria-labelledby="work-heading"'),
+  );
+  const titles = [...focus.matchAll(/<h3[^>]*>([^<]+)<\/h3>/g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(titles, [
+    "Events and communities",
+    "Organisations and foundations",
+    "Free and open",
+  ]);
+  assert.ok(html.indexOf('class="hero') < html.indexOf("focus-heading"));
+});
+
+test("Home's journal is a reading band and contact the closing band (R-HOME-7)", async () => {
+  const { html } = await page("/");
+  assert.match(html, /<section class="journal bleed[" ]/);
+  assert.match(
+    html,
+    /<section id="contact" class="contact bleed[" ][\s\S]*href="mailto:info@xigo\.ch"/,
+  );
+  const main = region(html, "main");
+  assert.ok(
+    main.lastIndexOf("<section") === main.indexOf('<section id="contact"'),
+    "the contact band is Home's last section",
+  );
+});
+
+test("Work ends with an invitation that mails info@xigo.ch (R-WORK-6)", async () => {
+  const { html } = await page("/work");
+  const main = region(html, "main");
+  const invite = main.slice(main.indexOf('aria-labelledby="invite-heading"'));
+  assert.match(invite, /Open for the next one\./);
+  assert.match(invite, /events, communities, non-profits\s+and foundations/);
+  assert.match(invite, /pro bono, and in the open/);
+  assert.match(invite, /href="mailto:info@xigo\.ch"/);
+  assert.ok(
+    main.lastIndexOf('href="/work/') < main.indexOf("invite-heading"),
+    "the invitation follows the projects",
+  );
+});
+
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
   for (const path of [
     "/",
