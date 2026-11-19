@@ -124,6 +124,20 @@ test("Home names the three focus areas, in order, right after the opening (R-HOM
   assert.ok(html.indexOf('class="hero') < html.indexOf("focus-heading"));
 });
 
+test("Home's journal is a reading band and contact the closing band (R-HOME-7)", async () => {
+  const { html } = await page("/");
+  assert.match(html, /<section class="journal bleed[" ]/);
+  assert.match(
+    html,
+    /<section id="contact" class="contact bleed[" ][\s\S]*href="mailto:info@xigo\.ch"/,
+  );
+  const main = region(html, "main");
+  assert.ok(
+    main.lastIndexOf("<section") === main.indexOf('<section id="contact"'),
+    "the contact band is Home's last section",
+  );
+});
+
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
   for (const path of [
     "/",

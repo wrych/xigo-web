@@ -87,3 +87,20 @@ h3 {
     scroll-behavior: auto !important;
   }
 }
+
+/* Full-bleed (R-HOME-7): --bleed is the distance from .wrap's text edge to
+ * the window's edge, so a .bleed band reaches the window and keeps its
+ * content in the column. 100vw counts a classic scrollbar; body clips the
+ * few pixels that adds instead of letting the page scroll sideways. */
+:root {
+  --bleed: calc(max(0px, (100vw - var(--max)) / 2) + var(--gutter));
+}
+
+body {
+  overflow-x: clip;
+}
+
+.bleed {
+  margin-inline: calc(-1 * var(--bleed));
+  padding-inline: var(--bleed);
+}

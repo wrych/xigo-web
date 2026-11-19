@@ -84,7 +84,7 @@ const topics = (project: {
         <Cover
           src={lead.data.image}
           alt={lead.data.imageAlt}
-          sizes="(min-width: 1000px) 640px, 100vw"
+          sizes="(min-width: 900px) 60vw, 100vw"
         />
         <span class="text">
           <span class="label">
@@ -118,7 +118,7 @@ const topics = (project: {
     </section>
   )}
 
-  <section class="journal" aria-labelledby="journal-heading">
+  <section class="journal bleed" aria-labelledby="journal-heading">
     <div class="section-head">
       <h2 id="journal-heading">Journal</h2>
       <a class="all" href="/journal">
@@ -128,7 +128,7 @@ const topics = (project: {
     <HomeJournal posts={newest} />
   </section>
 
-  <section id="contact" class="contact">
+  <section id="contact" class="contact bleed">
     <p class="label">Contact</p>
     <h2>
       Running an event, a community or a foundation?{" "}
@@ -146,7 +146,7 @@ const topics = (project: {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     align-items: center;
     gap: 40px;
-    padding: 96px 0 128px;
+    padding: 96px 0 112px;
   }
 
   .statement {
@@ -158,6 +158,7 @@ const topics = (project: {
   @media (max-width: 760px) {
     .hero {
       grid-template-columns: minmax(0, 1fr);
+      padding: 56px 0 72px;
     }
 
     .hero :global(.hero-network) {
@@ -169,6 +170,7 @@ const topics = (project: {
     font-size: clamp(44px, 6.5vw, 84px);
     line-height: 0.98;
     letter-spacing: -0.045em;
+    text-wrap: balance;
   }
 
   .label,
@@ -243,13 +245,17 @@ const topics = (project: {
     }
   }
 
+  /* No hairline between sections: the journal's and contact's own surfaces
+   * separate them from what comes before (R-HOME-7). */
   .work,
   .journal {
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    padding: 96px 0;
-    border-top: 1px solid var(--line);
+    gap: 48px;
+  }
+
+  .work {
+    padding: 0 0 clamp(96px, 12vw, 160px);
   }
 
   .section-head {
@@ -272,9 +278,25 @@ const topics = (project: {
 
   .project-lead {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-    gap: 32px 48px;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: 32px clamp(40px, 5vw, 72px);
     align-items: center;
+  }
+
+  /* The one place the page breaks its grid: the image runs out to the
+   * window, and keeps its rounded corners only on the side still inside. */
+  .project-lead :global(.cover) {
+    margin-left: calc(-1 * var(--bleed));
+  }
+
+  .project-lead :global(.cover img) {
+    border-radius: 0 24px 24px 0;
+  }
+
+  @media (max-width: 900px) {
+    .project-lead {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .text,
@@ -293,10 +315,11 @@ const topics = (project: {
     font-family: var(--font-display);
     line-height: 1;
     letter-spacing: -0.04em;
+    text-wrap: balance;
   }
 
   .project-lead .title {
-    font-size: clamp(36px, 5vw, 64px);
+    font-size: clamp(40px, 5vw, 72px);
   }
 
   .more {
@@ -320,30 +343,61 @@ const topics = (project: {
     color: var(--accent);
   }
 
+  .journal {
+    background: var(--surface);
+    padding-block: clamp(80px, 10vw, 128px);
+  }
+
+  /* Contact is inverted, so the site's light-on-dark colours, link hover and
+   * gold focus ring would vanish here. Near-black on #edebe6 is 16:1, the
+   * muted #5a5853 is 6:1 (R-WEB-2). */
   .contact {
+    --ink: var(--ground);
+    --ink-muted: #5a5853;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 32px;
-    padding: 128px 0;
-    border-top: 1px solid var(--line);
+    gap: 40px;
+    padding-block: clamp(96px, 14vw, 176px);
+    background: var(--text);
+    color: var(--ink);
   }
 
   .contact .label {
     margin: 0;
+    color: var(--ink-muted);
   }
 
   .contact h2 {
-    max-width: 900px;
-    font-size: clamp(40px, 6vw, 80px);
-    letter-spacing: -0.04em;
+    width: 100%;
+    max-width: 1040px;
+    font-size: clamp(40px, 6vw, 84px);
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .contact .muted {
+    color: var(--ink-muted);
   }
 
   .mail {
     font-family: var(--font-display);
-    font-size: 24px;
-    border-bottom: 1px solid var(--accent);
+    font-size: clamp(32px, 5vw, 64px);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    overflow-wrap: anywhere;
+    border-bottom: 2px solid var(--ink);
     padding-bottom: 6px;
+  }
+
+  .contact .mail:hover,
+  .contact .mail:focus-visible {
+    color: var(--ink);
+    border-bottom-color: #7a5c2a;
+  }
+
+  .contact :focus-visible {
+    outline-color: var(--ink);
   }
 
   .button.primary {
