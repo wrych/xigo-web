@@ -142,3 +142,27 @@ test("the icon draws the wordmark's own x and node (R-WEB-7, R-WEB-8)", async ()
     );
   }
 });
+
+async function stylesOf(html) {
+  const inline = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(
+    (match) => match[1],
+  );
+  const linked = await Promise.all(
+    [...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(
+      (match) => text(match[1]),
+    ),
+  );
+  return [...inline, ...linked].join("\n");
+}
+
+for (const path of PAGES) {
+  test(`${path} never fills a button with the accent (R-WEB-8)`, async () => {
+    const css = await stylesOf(await text(path));
+    const filled = [...css.matchAll(/([^{}]*\.button[^{}]*)\{([^}]*)\}/g)]
+      .filter(([, , body]) =>
+        /background(-color)?:\s*var\(--accent\)/.test(body),
+      )
+      .map(([, selector]) => selector.trim());
+    assert.deepEqual(filled, []);
+  });
+}

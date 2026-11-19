@@ -72,10 +72,6 @@ No `●` glyph, no full stop in gold, no coloured words.
 ring, the current state, a link's underline, a quote's rule and the network
 drawings. The one primary action on a page is filled in `--text`.
 
-One button still breaks this rule: the project page's "See the source code"
-is filled gold. It changes with the rework of the page's buttons (one primary
-style, filled in `--text`), which is not part of the brand mark.
-
 ## Type
 
 Space Grotesk 300 for headings, Inter 300 and 500 for text, both served by
