@@ -25,8 +25,13 @@ export function createDesk(deps: {
       );
       sentAt = recent;
       if (!allowed) return "limited";
-      await deps.send(mailFor(values));
       sentAt.push(now);
+      try {
+        await deps.send(mailFor(values));
+      } catch (error) {
+        sentAt.splice(sentAt.lastIndexOf(now), 1);
+        throw error;
+      }
       return "sent";
     },
   };

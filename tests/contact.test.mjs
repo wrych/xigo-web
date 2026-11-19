@@ -107,6 +107,21 @@ test("a desk sends until the hour's limit, then holds back (R-CONTACT-4)", async
   assert.equal(sent.length, 3);
 });
 
+test("mails sent at the same moment share the hour's limit (R-CONTACT-4)", async () => {
+  let release;
+  const pending = new Promise((resolve) => (release = resolve));
+  const desk = createDesk({
+    send: () => pending,
+    perHour: 1,
+    now: () => 0,
+  });
+  const values = readSubmission(form(VALID)).values;
+  const first = desk.submit(values);
+  assert.equal(await desk.submit(values), "limited");
+  release();
+  assert.equal(await first, "sent");
+});
+
 test("a failed send is not counted against the limit", async () => {
   let fail = true;
   const desk = createDesk({
