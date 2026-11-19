@@ -19,6 +19,8 @@ const HIT_RADIUS = 9;
 const ARRIVAL_RADIUS = 2.6;
 const PULSE_SPARK_RADIUS = 7;
 const RING_GAP = 2;
+const origin = (x: number, y: number) =>
+  `--origin-x: ${x}px; --origin-y: ${y}px`;
 ---
 
 <svg
@@ -96,6 +98,7 @@ const RING_GAP = 2;
           cx={pulse.x2}
           cy={pulse.y2}
           r={PULSE_SPARK_RADIUS}
+          style={origin(pulse.x2, pulse.y2)}
         />
       </g>
     ))}
@@ -104,7 +107,7 @@ const RING_GAP = 2;
     <g
       class:list={["node", { bridge: bridgeOf.has(index) }]}
       data-joins={bridgeOf.get(index)?.joins.join(" ")}
-      style={`--delay: ${node.delay}s; --depth: ${depthOf(node.cluster)}`}
+      style={`--delay: ${node.delay}s; --depth: ${depthOf(node.cluster)}; ${origin(node.x, node.y)}`}
     >
       {neighbours[index].map((other) => (
         <line
@@ -132,6 +135,7 @@ const RING_GAP = 2;
             cx={nodes[other].x}
             cy={nodes[other].y}
             r={ARRIVAL_RADIUS}
+            style={origin(nodes[other].x, nodes[other].y)}
           />
         </g>
       ))}
@@ -230,17 +234,19 @@ const RING_GAP = 2;
   .pulse-spark {
     fill: var(--accent);
     opacity: 0;
-    transform-box: fill-box;
-    transform-origin: center;
     animation: land var(--pulse-cycle) var(--delay) ease-out infinite;
   }
 
+  /* Each shape scales about its own centre, given in the drawing's own
+   * units, so where it grows from never depends on how a browser measures
+   * the shape's box. */
   .dot,
   .lift,
   .ring,
-  .arrival-spark {
-    transform-box: fill-box;
-    transform-origin: center;
+  .arrival-spark,
+  .pulse-spark {
+    transform-box: view-box;
+    transform-origin: var(--origin-x) var(--origin-y);
   }
 
   .member {
@@ -279,12 +285,16 @@ const RING_GAP = 2;
     transition: stroke-opacity var(--hover-time) var(--ease-out);
   }
 
-  .node:hover .lift {
-    transform: scale(1.6);
-  }
+  /* Only a pointer that hovers grows a node: on a touch screen the hover
+   * would stay after a tap and leave the node enlarged. */
+  @media (hover: hover) {
+    .node:hover .lift {
+      transform: scale(1.6);
+    }
 
-  .node:hover .edge {
-    stroke-opacity: 0.45;
+    .node:hover .edge {
+      stroke-opacity: 0.45;
+    }
   }
 
   .core {
