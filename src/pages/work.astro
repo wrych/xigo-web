@@ -40,6 +40,20 @@ const projects = await allProjects();
       </li>
     ))}
   </ul>
+
+  <section class="invite" aria-labelledby="invite-heading">
+    <h2 id="invite-heading">Open for the next one.</h2>
+    <div class="invite-text">
+      <p>
+        We build tools and share practices for events, communities, non-profits
+        and foundations — pro bono, and in the open. Tell us what you’re working
+        on.
+      </p>
+      <a class="mail" href="mailto:info@xigo.ch">
+        info@xigo.ch
+      </a>
+    </div>
+  </section>
 </Base>
 
 <style>
@@ -98,5 +112,47 @@ const projects = await allProjects();
   li a:hover .title,
   li a:focus-visible .title {
     color: var(--accent);
+  }
+
+  /* Dashed, like an empty slot: the place of the next project (R-WORK-6). */
+  .invite {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 32px 48px;
+    align-items: end;
+    margin-bottom: clamp(80px, 10vw, 128px);
+    padding: clamp(32px, 6vw, 72px);
+    border: 1px dashed var(--line-strong);
+    border-radius: 24px;
+    background: var(--surface);
+  }
+
+  .invite h2 {
+    font-size: clamp(36px, 5vw, 64px);
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .invite-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+  }
+
+  .invite p {
+    margin: 0;
+    max-width: 460px;
+    font-size: 18px;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .mail {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 3vw, 36px);
+    letter-spacing: -0.02em;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
   }
 </style>

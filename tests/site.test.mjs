@@ -138,6 +138,20 @@ test("Home's journal is a reading band and contact the closing band (R-HOME-7)",
   );
 });
 
+test("Work ends with an invitation that mails info@xigo.ch (R-WORK-6)", async () => {
+  const { html } = await page("/work");
+  const main = region(html, "main");
+  const invite = main.slice(main.indexOf('aria-labelledby="invite-heading"'));
+  assert.match(invite, /Open for the next one\./);
+  assert.match(invite, /events, communities, non-profits\s+and foundations/);
+  assert.match(invite, /pro bono, and in the open/);
+  assert.match(invite, /href="mailto:info@xigo\.ch"/);
+  assert.ok(
+    main.lastIndexOf('href="/work/') < main.indexOf("invite-heading"),
+    "the invitation follows the projects",
+  );
+});
+
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
   for (const path of [
     "/",
