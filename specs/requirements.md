@@ -143,8 +143,14 @@ xigo.ch, as served to a visitor.
 - **R-WEB-6** The site sets no cookie, loads no third-party script, and
   collects no personal data (constitution §C). Fonts are served by the site.
 - **R-WEB-7** Every page names the site's icon: the wordmark's x and its gold
-  dot, as SVG, with `/favicon.ico` and an Apple touch icon for browsers that
-  do not take SVG.
+  node, drawn exactly as in the wordmark (R-WEB-8), as SVG, with
+  `/favicon.ico` and an Apple touch icon for browsers that do not take SVG.
+- **R-WEB-8** The wordmark is a drawing, not typed text: an SVG made from the
+  brand sheet (`docs/brand.md`), shared by header, footer and icon, with the
+  accessible name "xigo". The accent dot has one form, the node — a small
+  filled circle in the accent colour — used for the wordmark's dot, list
+  bullets, eyebrows, the featured marker and the current page in the
+  navigation.
 
 ## 3D (R-3D)
 
