@@ -1,6 +1,6 @@
 import { after, before, test } from "node:test";
 import assert from "node:assert/strict";
-import { chromium } from "playwright";
+import { launchChromium } from "./browser.mjs";
 import { FIXTURES, buildWith, main, serve } from "./work-site.mjs";
 
 let read;
@@ -22,7 +22,7 @@ before(async () => {
 after(() => site?.stop());
 
 const runningAnimations = async (reducedMotion) => {
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const tab = await browser.newPage({ reducedMotion });
     await tab.goto(`${site.origin}/work/with-scene`);

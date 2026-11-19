@@ -44,6 +44,11 @@ docs/deploy.md      how a commit reaches staging and production
 | `npm run format` | Prettier, including `.astro` files                             |
 | `npm run review` | the xigOS reviewer on the branch, as the pre-push hook runs it |
 
+The browser tests use Playwright's Chromium (`npx playwright install chromium`,
+as CI does). Where that cannot be downloaded, they use the Chromium that
+`CHROMIUM_EXECUTABLE` names, or the one a cloud session ships at
+`/opt/pw-browsers/chromium`.
+
 ## How a change happens
 
 1. **Find what it serves** — a requirement, an issue, or an ADR. No requirement
