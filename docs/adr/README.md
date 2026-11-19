@@ -21,4 +21,4 @@ the decision lands, keep it to a page, and supersede rather than edit.
 | [0006](0006-build-the-site-with-astro.md)                           | Build the site with Astro                                               | Accepted, amended by 0008 |
 | [0007](0007-the-deploy-key-runs-code-as-the-shared-hosting-user.md) | Accept that what the deploy key deploys runs as the shared hosting user | Accepted                  |
 | [0008](0008-filters-are-prerendered-pages.md)                       | Filters are prerendered pages, not query strings                        | Accepted                  |
-| [0009](0009-a-contact-form-that-mails-and-stores-nothing.md)        | A contact form that sends a mail and stores nothing                     | Proposed                  |
+| [0009](0009-a-contact-form-that-mails-and-stores-nothing.md)        | A contact form that sends a mail and stores nothing                     | Accepted                  |

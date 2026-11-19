@@ -1,8 +1,8 @@
 # 0009. A contact form that sends a mail and stores nothing
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-11-19
-- **Deciders:** Andy Moesch, Ivo Pejakovic
+- **Deciders:** Andy Moesch
 
 ## Context
 
