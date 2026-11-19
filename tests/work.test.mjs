@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { showcase, workOrder } from "../src/work.ts";
+import { showcase, splitAfterSection, workOrder } from "../src/work.ts";
 import {
   MATCH_CYCLE_SECONDS,
   SCENE_HEIGHT,
@@ -165,4 +165,34 @@ test("the hero's idle pulses travel along its lines, within one cycle (R-HOME-6)
     assert.ok(links.some((link) => same(link, pulse)));
     assert.ok(pulse.delay < HERO_PULSE_CYCLE_SECONDS);
   }
+});
+
+const TEXT =
+  '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p><h2 id="two">Two</h2><p>c</p>';
+
+test("a scene goes where the named section ends (R-WORK-4)", () => {
+  assert.deepEqual(splitAfterSection(TEXT, "one"), [
+    '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p>',
+    '<h2 id="two">Two</h2><p>c</p>',
+  ]);
+  assert.deepEqual(splitAfterSection(TEXT, "deep"), [
+    '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p>',
+    '<h2 id="two">Two</h2><p>c</p>',
+  ]);
+  assert.deepEqual(splitAfterSection(TEXT, "two"), [TEXT, ""]);
+});
+
+test("a scene after a heading that is not there is a content error naming it (R-CONT-2)", () => {
+  assert.throws(
+    () => splitAfterSection(TEXT, "missing"),
+    /sceneAfter: "missing" names no heading/,
+  );
+  assert.throws(
+    () => splitAfterSection(TEXT, "o.e"),
+    /sceneAfter: "o\.e" names no heading/,
+  );
+  assert.throws(
+    () => splitAfterSection(TEXT, "c++"),
+    /sceneAfter: "c\+\+" names no heading/,
+  );
 });

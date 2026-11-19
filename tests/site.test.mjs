@@ -469,6 +469,15 @@ test("the Rebel Match page shows the app's screens, marked as sample data (R-CON
   assert.match(main, /made-up sample members/);
 });
 
+test("the Rebel Match page keeps the scene for how matching works (R-WORK-4)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  const how = main.indexOf('id="what-it-leads-to"');
+  const scene = main.search(/<svg[^>]*role="img"/);
+  const trust = main.indexOf('id="trust-comes-first"');
+  assert.ok(how > 0 && how < scene && scene < trust);
+});
+
 test("the network scene stands still under reduced motion (R-WEB-4)", async () => {
   const browser = await chromium.launch();
   try {

@@ -6,6 +6,7 @@ topics: [events, communities, open-source]
 image: ./cover.png
 imageAlt: 'Three phone screens from the Rebel Match app, filled with its made-up sample members and fanned out on an orange ground, under the words "Sample members, not real people". In the middle, a member''s challenge and their matches, "Same boat: Rebels facing this now"; on the left, a welcome with "Ask for help" and "Offer help"; on the right, another member''s challenge on a card, with the answers "Same boat" and "Been there".'
 scene: network
+sceneAfter: what-it-leads-to
 source: https://github.com/wrych/rebel-match
 license: MIT
 featured: true

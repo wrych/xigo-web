@@ -4,7 +4,7 @@ import Base from "../../layouts/Base.astro";
 import Cover from "../../components/Cover.astro";
 import NetworkScene from "../../components/NetworkScene.astro";
 import { allProjects, type Project } from "../../projects";
-import { PROJECT_TOPICS } from "../../work";
+import { PROJECT_TOPICS, splitAfterSection } from "../../work";
 
 export async function getStaticPaths() {
   const projects = await allProjects();
@@ -24,10 +24,23 @@ const {
   image,
   imageAlt,
   scene,
+  sceneAfter,
   figures,
   source,
   license,
 } = project.data;
+/* The scene sits in the text, after the section the project names
+ * (R-WORK-4). The text is split as rendered, so a text with images of its
+ * own fails the build: only its Content component resolves those. */
+let around: [string, string] | undefined;
+if (scene && sceneAfter) {
+  if (project.rendered?.metadata?.imagePaths?.length) {
+    throw new Error(
+      `${project.id}: sceneAfter cannot yet place a scene in a text with images`,
+    );
+  }
+  around = splitAfterSection(project.rendered?.html ?? "", sceneAfter);
+}
 ---
 
 <Base title={title} description={summary}>
@@ -48,18 +61,29 @@ const {
       )}
     </header>
 
-    {scene === "network" ? (
-      <NetworkScene />
-    ) : (
-      <Cover
-        src={image}
-        alt={imageAlt}
-        sizes="(min-width: 1240px) 1200px, 100vw"
-      />
-    )}
+    <Cover
+      src={image}
+      alt={imageAlt}
+      sizes="(min-width: 1240px) 1200px, 100vw"
+    />
 
     <div class="body">
-      <Content />
+      {around ? (
+        <>
+          <Fragment set:html={around[0]} />
+          <div class="scene-in-text">
+            <NetworkScene />
+          </div>
+          <Fragment set:html={around[1]} />
+        </>
+      ) : (
+        <Content />
+      )}
+      {scene && !around && (
+        <div class="scene-in-text">
+          <NetworkScene />
+        </div>
+      )}
     </div>
 
     {figures.map((figure) => (
@@ -142,9 +166,19 @@ const {
     outline-color: var(--text);
   }
 
+  .scene-in-text {
+    margin: 48px 0 0;
+  }
+
+  @media (min-width: 1080px) {
+    .scene-in-text {
+      margin-inline: -120px;
+    }
+  }
+
   .body {
     max-width: 760px;
-    margin: 80px auto 0;
+    margin: 96px auto 0;
     font-size: 18px;
     line-height: 1.7;
   }

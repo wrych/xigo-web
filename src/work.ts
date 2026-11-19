@@ -8,7 +8,7 @@ export const PROJECT_TOPICS = {
 
 export type ProjectTopic = keyof typeof PROJECT_TOPICS;
 
-/** The animated scenes a project page may open with instead of its image. */
+/** The animated scenes a project page may show in its text (R-WORK-4). */
 export const SCENES = ["network"] as const;
 
 interface Project {
@@ -44,4 +44,25 @@ export function showcase<T extends Project>(
 ): { lead: T | undefined; more: T[] } {
   const [lead, ...more] = workOrder(projects).slice(0, count);
   return { lead, more };
+}
+
+/** Splits a project's rendered text where the section headed `id` ends: at
+ * the next heading of the same or a higher level, or at the end of the text.
+ * The scene goes in between (R-WORK-4). A heading that is not there is a
+ * content error naming it (R-CONT-2). */
+export function splitAfterSection(html: string, id: string): [string, string] {
+  const literal = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const heading = new RegExp(`<h([1-6])[^>]*\\sid="${literal}"`).exec(html);
+  if (!heading) {
+    throw new Error(
+      `sceneAfter: "${id}" names no heading in the project's text`,
+    );
+  }
+  const level = Number(heading[1]);
+  const rest = html.slice(heading.index + heading[0].length);
+  const next = new RegExp(`<h[1-${level}][\\s>]`).exec(rest);
+  const at = next
+    ? heading.index + heading[0].length + next.index
+    : html.length;
+  return [html.slice(0, at), html.slice(at)];
 }

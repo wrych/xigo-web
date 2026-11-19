@@ -68,6 +68,7 @@ const work = defineCollection({
         image: image(),
         imageAlt: z.string().min(1),
         scene: z.enum(SCENES).optional(),
+        sceneAfter: z.string().min(1).optional(),
         figures: z
           .array(
             z
@@ -83,7 +84,15 @@ const work = defineCollection({
         license: z.string().min(1).optional(),
         featured: z.boolean().default(false),
       })
-      .strict(),
+      .strict()
+      .refine(
+        (project) =>
+          project.sceneAfter === undefined || project.scene !== undefined,
+        {
+          message: "sceneAfter needs a scene (R-WORK-4)",
+          path: ["sceneAfter"],
+        },
+      ),
 });
 
 export const collections = { journal, people, work };

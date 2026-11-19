@@ -18,10 +18,10 @@ const IMAGE = join(
   "content/journal/navigating-change-finding-your-voice-in-a-complex-world/cover.png",
 );
 
-const frontMatter = (fields) =>
+const frontMatter = ({ body = "The project's own words.", ...fields }) =>
   `---\n${Object.entries(fields)
     .map(([key, value]) => `${key}: ${value}`)
-    .join("\n")}\n---\n\nThe project's own words.\n`;
+    .join("\n")}\n---\n\n${body}\n`;
 
 const base = {
   summary: '"What it is for."',
