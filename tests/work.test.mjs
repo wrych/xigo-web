@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { showcase, workOrder } from "../src/work.ts";
+import {
+  projectFacts,
+  showcase,
+  splitAfterSection,
+  workOrder,
+} from "../src/work.ts";
 import {
   MATCH_CYCLE_SECONDS,
   SCENE_HEIGHT,
@@ -94,14 +99,56 @@ test("the hero network is the same on every build (R-HOME-6)", () => {
   assert.deepEqual(heroScene(), heroScene());
 });
 
-test("the hero network stays inside its frame and has golden hubs (R-HOME-6)", () => {
-  const { nodes, links } = heroScene();
-  for (const node of nodes) {
-    assert.ok(node.x - node.r > 0 && node.x + node.r < HERO_SIZE);
-    assert.ok(node.y - node.r > 0 && node.y + node.r < HERO_SIZE);
+test("the hero network is communities bridged by a few golden people (R-HOME-6)", () => {
+  const { nodes, links, neighbours, communities, bridges } = heroScene();
+  assert.ok(communities.length >= 3, "several communities");
+  assert.ok(bridges.length >= 3 && bridges.length <= 5, "a few bridges");
+  for (const [cluster, community] of communities.entries()) {
+    assert.ok(community.members.length > 4);
+    assert.ok(community.members.every((i) => nodes[i].cluster === cluster));
+    assert.ok(community.members.every((i) => !nodes[i].hub));
+    assert.ok(links.some((link) => link.cluster === cluster));
+    assert.ok(community.depth > 0 && community.depth <= 1);
   }
-  assert.ok(nodes.some((node) => node.hub));
-  assert.ok(links.length > 0);
+  const bridged = new Set();
+  for (const bridge of bridges) {
+    assert.ok(nodes[bridge.node].hub);
+    assert.ok(bridge.joins.length >= 2, "a bridge joins two communities");
+    for (const joined of bridge.joins) {
+      bridged.add(joined);
+      assert.ok(
+        neighbours[bridge.node].some((i) => nodes[i].cluster === joined),
+        "a bridge's signals reach each community it joins",
+      );
+    }
+  }
+  assert.equal(bridged.size, communities.length, "no community is left alone");
+  assert.equal(
+    nodes.filter((node) => node.hub).length,
+    bridges.length,
+    "only the bridges are golden",
+  );
+});
+
+test("the hero network, its grounds and halos stay inside its frame (R-HOME-6)", () => {
+  const { nodes, communities, bridges } = heroScene();
+  const discs = [
+    ...nodes,
+    ...communities.map((community) => ({ ...community, r: community.ground })),
+    ...bridges.map((bridge) => ({ ...nodes[bridge.node], r: bridge.halo })),
+  ];
+  for (const disc of discs) {
+    assert.ok(disc.x - disc.r >= 0 && disc.x + disc.r <= HERO_SIZE);
+    assert.ok(disc.y - disc.r >= 0 && disc.y + disc.r <= HERO_SIZE);
+  }
+});
+
+test("the hero's idle pulses run out from the bridges (R-HOME-6)", () => {
+  const { nodes, pulses, bridges } = heroScene();
+  const starts = new Set(
+    bridges.map((bridge) => `${nodes[bridge.node].x},${nodes[bridge.node].y}`),
+  );
+  for (const pulse of pulses) assert.ok(starts.has(`${pulse.x1},${pulse.y1}`));
 });
 
 test("each hero node knows the nodes it is joined to (R-HOME-6)", () => {
@@ -123,4 +170,82 @@ test("the hero's idle pulses travel along its lines, within one cycle (R-HOME-6)
     assert.ok(links.some((link) => same(link, pulse)));
     assert.ok(pulse.delay < HERO_PULSE_CYCLE_SECONDS);
   }
+});
+const TEXT =
+  '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p><h2 id="two">Two</h2><p>c</p>';
+
+test("a scene goes where the named section ends (R-WORK-4)", () => {
+  assert.deepEqual(splitAfterSection(TEXT, "one"), [
+    '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p>',
+    '<h2 id="two">Two</h2><p>c</p>',
+  ]);
+  assert.deepEqual(splitAfterSection(TEXT, "deep"), [
+    '<h2 id="one">One</h2><p>a</p><h3 id="deep">Deep</h3><p>b</p>',
+    '<h2 id="two">Two</h2><p>c</p>',
+  ]);
+  assert.deepEqual(splitAfterSection(TEXT, "two"), [TEXT, ""]);
+});
+
+test("a scene after a heading that is not there is a content error naming it (R-CONT-2)", () => {
+  assert.throws(
+    () => splitAfterSection(TEXT, "missing"),
+    /sceneAfter: "missing" names no heading/,
+  );
+  assert.throws(
+    () => splitAfterSection(TEXT, "o.e"),
+    /sceneAfter: "o\.e" names no heading/,
+  );
+  assert.throws(
+    () => splitAfterSection(TEXT, "c++"),
+    /sceneAfter: "c\+\+" names no heading/,
+  );
+});
+
+const date = (value) => value.toISOString().slice(0, 10);
+
+test("the facts strip says only what the front matter holds (R-WORK-5)", () => {
+  assert.deepEqual(projectFacts({ year: 2024 }, date), [
+    { label: "Year", values: [{ text: "2024" }] },
+  ]);
+  assert.deepEqual(
+    projectFacts(
+      {
+        year: 2026,
+        license: "MIT",
+        launch: { date: new Date("2026-11-08"), event: "A summit" },
+        team: [],
+      },
+      date,
+    ).map((fact) => fact.label),
+    ["Year", "Launched", "License"],
+  );
+});
+
+test("the facts strip names the launch, its stage, and who made what (R-WORK-5)", () => {
+  const facts = projectFacts(
+    {
+      year: 2026,
+      launch: {
+        date: new Date("2026-11-08"),
+        event: "A summit",
+        stage: "beta",
+      },
+      team: [
+        { name: "A Person", organisation: "An Org", part: "Design" },
+        { name: "B Person", part: "Engineering" },
+      ],
+    },
+    date,
+  );
+  assert.deepEqual(facts[1], {
+    label: "Beta launched",
+    values: [{ text: "2026-11-08", note: "A summit" }],
+  });
+  assert.deepEqual(facts[2], {
+    label: "Made by",
+    values: [
+      { text: "A Person, An Org", note: "Design" },
+      { text: "B Person", note: "Engineering" },
+    ],
+  });
 });

@@ -427,7 +427,11 @@ test("Work lists every project, the featured one first (R-WORK-1)", async () => 
   assert.deepEqual([...slugs].sort(), [...PROJECTS].sort());
   assert.equal(slugs[0], "rebel-match");
   assert.match(main, /Featured/);
-  assert.match(main, /<img[^>]*alt="An illustration of a network/);
+  assert.match(
+    main,
+    /<img[^>]*alt="Three phone screens from the Rebel Match app/,
+  );
+  assert.match(main, /made-up sample members/);
 });
 
 test("a project page shows its text, its source code and its license (R-WORK-3)", async () => {
@@ -463,6 +467,42 @@ test("the Rebel Match page shows the app's screens, marked as sample data (R-CON
   const main = region(html, "main");
   assert.match(main, /<img[^>]*alt="Three phone screens from Rebel Match/);
   assert.match(main, /made-up sample members/);
+});
+
+test("the Rebel Match page keeps the scene for how matching works (R-WORK-4)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  const how = main.indexOf('id="what-it-leads-to"');
+  const scene = main.search(/<svg[^>]*role="img"/);
+  const trust = main.indexOf('id="trust-comes-first"');
+  assert.ok(how > 0 && how < scene && scene < trust);
+});
+
+test("the Rebel Match page opens with its screens, before its text (R-WORK-5)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const main = region(html, "main");
+  const screens = main.search(
+    /<img[^>]*alt="Three phone screens from Rebel Match/,
+  );
+  const text = main.indexOf('id="nobody-should-face-a-hard-change-alone"');
+  assert.ok(screens > main.indexOf("</h1>") && screens < text);
+});
+
+test("the Rebel Match facts come from its page (R-WORK-5)", async () => {
+  const { html } = await page("/work/rebel-match");
+  const strip = /<dl class="facts[\s\S]*?<\/dl>/.exec(html)[0];
+  for (const fact of [
+    "2026",
+    "Beta launched",
+    "8 Nov 2026",
+    "Corporate Rebels summit",
+    "MIT",
+    "Pascal Dulex, Transformation Architects",
+    "Andy Moesch",
+    "Ivo Pejakovic",
+  ]) {
+    assert.ok(strip.includes(fact), fact);
+  }
 });
 
 test("the network scene stands still under reduced motion (R-WEB-4)", async () => {
@@ -558,6 +598,12 @@ test("Home's statement stands beside a decorative network (R-HOME-6)", async () 
     hero,
     /<svg[^>]*class="hero-network[^"]*"[^>]*aria-hidden="true"/,
   );
+  assert.ok((hero.match(/class="community"/g) ?? []).length >= 3);
+  const bridges = [
+    ...hero.matchAll(/class="node bridge" data-joins="([\d ]+)"/g),
+  ];
+  assert.ok(bridges.length >= 3);
+  for (const [, joins] of bridges) assert.ok(joins.split(" ").length >= 2);
 });
 
 const heroNetwork = async (options) => {

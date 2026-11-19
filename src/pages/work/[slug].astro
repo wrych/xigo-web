@@ -3,8 +3,9 @@ import { render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import Cover from "../../components/Cover.astro";
 import NetworkScene from "../../components/NetworkScene.astro";
+import { formatDate } from "../../journal";
 import { allProjects, type Project } from "../../projects";
-import { PROJECT_TOPICS } from "../../work";
+import { PROJECT_TOPICS, projectFacts, splitAfterSection } from "../../work";
 
 export async function getStaticPaths() {
   const projects = await allProjects();
@@ -23,11 +24,27 @@ const {
   topics,
   image,
   imageAlt,
+  opening,
   scene,
+  sceneAfter,
   figures,
   source,
   license,
 } = project.data;
+const facts = projectFacts(project.data, formatDate);
+
+/* The scene sits in the text, after the section the project names
+ * (R-WORK-4). The text is split as rendered, so a text with images of its
+ * own fails the build: only its Content component resolves those. */
+let around: [string, string] | undefined;
+if (scene && sceneAfter) {
+  if (project.rendered?.metadata?.imagePaths?.length) {
+    throw new Error(
+      `${project.id}: sceneAfter cannot yet place a scene in a text with images`,
+    );
+  }
+  around = splitAfterSection(project.rendered?.html ?? "", sceneAfter);
+}
 ---
 
 <Base title={title} description={summary}>
@@ -48,18 +65,58 @@ const {
       )}
     </header>
 
-    {scene === "network" ? (
-      <NetworkScene />
-    ) : (
-      <Cover
-        src={image}
-        alt={imageAlt}
-        sizes="(min-width: 1240px) 1200px, 100vw"
-      />
-    )}
+    <section class="product" aria-label={`${title}: the product`}>
+      {opening ? (
+        <figure class="opening">
+          <Cover
+            src={opening.image}
+            alt={opening.alt}
+            sizes="(min-width: 1240px) 1200px, 100vw"
+          />
+          {opening.caption && (
+            <figcaption class="muted">{opening.caption}</figcaption>
+          )}
+        </figure>
+      ) : (
+        <Cover
+          src={image}
+          alt={imageAlt}
+          sizes="(min-width: 1240px) 1200px, 100vw"
+        />
+      )}
+
+      <dl class="facts">
+        {facts.map((fact) => (
+          <div class:list={["fact", { wide: fact.values.length > 1 }]}>
+            <dt class="label">{fact.label}</dt>
+            {fact.values.map((value) => (
+              <dd>
+                <span class="fact-text">{value.text}</span>
+                {value.note && <span class="muted">{value.note}</span>}
+              </dd>
+            ))}
+          </div>
+        ))}
+      </dl>
+    </section>
 
     <div class="body">
-      <Content />
+      {around ? (
+        <>
+          <Fragment set:html={around[0]} />
+          <div class="scene-in-text">
+            <NetworkScene />
+          </div>
+          <Fragment set:html={around[1]} />
+        </>
+      ) : (
+        <Content />
+      )}
+      {scene && !around && (
+        <div class="scene-in-text">
+          <NetworkScene />
+        </div>
+      )}
     </div>
 
     {figures.map((figure) => (
@@ -142,9 +199,84 @@ const {
     outline-color: var(--text);
   }
 
+  .product {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .opening {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .opening figcaption {
+    font-size: 14px;
+  }
+
+  .facts {
+    margin: 0;
+    padding: 28px 0 0;
+    border-top: 1px solid var(--line-strong);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 28px 40px;
+  }
+
+  .fact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .fact.wide {
+    grid-column: span 2;
+  }
+
+  @media (max-width: 560px) {
+    .fact.wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .fact dt {
+    margin: 0;
+  }
+
+  .fact dd {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .fact-text {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .fact .muted {
+    font-size: 14px;
+  }
+
+  .scene-in-text {
+    margin: 48px 0 0;
+  }
+
+  @media (min-width: 1080px) {
+    .scene-in-text {
+      margin-inline: -120px;
+    }
+  }
+
   .body {
     max-width: 760px;
-    margin: 80px auto 0;
+    margin: 96px auto 0;
     font-size: 18px;
     line-height: 1.7;
   }
