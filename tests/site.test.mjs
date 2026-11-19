@@ -102,6 +102,11 @@ test("the contact section mails info@xigo.ch (R-HOME-5)", async () => {
   assert.match(html, /id="contact"[\s\S]*href="mailto:info@xigo\.ch"/);
 });
 
+test("the contact heading keeps the space between its two sentences (R-HOME-5)", async () => {
+  const { html } = await page("/");
+  assert.match(html, /foundation\? <span/);
+});
+
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
   for (const path of [
     "/",
