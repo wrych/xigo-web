@@ -10,6 +10,22 @@ import HeroNetwork from "../components/HeroNetwork.astro";
 
 const newest = latest(await allPosts());
 const { lead, more } = showcase(await allProjects());
+/* R-HOME-2. Each sentence rests on what the site already says: the hero,
+ * the founders' profiles and the Rebel Match project. */
+const FOCUS_AREAS = [
+  {
+    title: "Events and communities",
+    text: "Tools for the moments people meet — like Rebel Match, which connects peers in a conference break.",
+  },
+  {
+    title: "Organisations and foundations",
+    text: "Help for non-profits and foundations: choosing their tools, agreeing who decides what, and getting the numbers they need from their own data.",
+  },
+  {
+    title: "Free and open",
+    text: "Pro bono, and open source wherever we can: anyone can read how Rebel Match works and build on it.",
+  },
+];
 const topics = (project: {
   data: { topics: (keyof typeof PROJECT_TOPICS)[] };
 }) => project.data.topics.map((topic) => PROJECT_TOPICS[topic]).join(" · ");
@@ -40,6 +56,20 @@ const topics = (project: {
       </div>
     </div>
     <HeroNetwork />
+  </section>
+
+  <section class="focus" aria-labelledby="focus-heading">
+    <h2 id="focus-heading" class="label">
+      What we help with
+    </h2>
+    <ul class="areas">
+      {FOCUS_AREAS.map((area) => (
+        <li>
+          <h3>{area.title}</h3>
+          <p class="muted">{area.text}</p>
+        </li>
+      ))}
+    </ul>
   </section>
 
   {lead && (
@@ -165,6 +195,52 @@ const topics = (project: {
     border-radius: 999px;
     border: 1px solid var(--line-strong);
     font-size: 15px;
+  }
+
+  /* The focus areas share the hero's dark ground, so they are set apart by
+   * air and by type: their titles are the page's second large moment. */
+  .focus {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 0 0 clamp(96px, 12vw, 160px);
+  }
+
+  .areas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 48px clamp(32px, 4vw, 64px);
+  }
+
+  .areas li {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .areas h3 {
+    font-size: clamp(32px, 3.4vw, 48px);
+    line-height: 1;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+  }
+
+  .areas p {
+    margin: 0;
+    max-width: 34ch;
+    font-size: 17px;
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 860px) {
+    .areas {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .work,

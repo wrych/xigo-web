@@ -107,6 +107,23 @@ test("the contact heading keeps the space between its two sentences (R-HOME-5)",
   assert.match(html, /foundation\? <span/);
 });
 
+test("Home names the three focus areas, in order, right after the opening (R-HOME-2)", async () => {
+  const { html } = await page("/");
+  const focus = html.slice(
+    html.indexOf('aria-labelledby="focus-heading"'),
+    html.indexOf('aria-labelledby="work-heading"'),
+  );
+  const titles = [...focus.matchAll(/<h3[^>]*>([^<]+)<\/h3>/g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(titles, [
+    "Events and communities",
+    "Organisations and foundations",
+    "Free and open",
+  ]);
+  assert.ok(html.indexOf('class="hero') < html.indexOf("focus-heading"));
+});
+
 test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)", async () => {
   for (const path of [
     "/",
