@@ -37,8 +37,7 @@ def number(value):
     return f"{value:.1f}".rstrip("0").rstrip(".")
 
 
-def cut_x():
-    """The font's x: its rising stroke drawn straight, the falling one cut where they cross."""
+def x_with_falling_stroke_cut():
     rising = Polygon(RISING_STROKE)
     falling = Polygon(X_OUTLINE).difference(rising.buffer(CUT, join_style="mitre"))
     return [rising, *falling.geoms]
@@ -67,7 +66,7 @@ def main():
     glyphs, cmap = font.getGlyphSet(), font.getBestCmap()
     x_left = -INK["x"][0]
     right = INK["x"][1] + x_left
-    x_path = polygon_path(cut_x(), x_left)
+    x_path = polygon_path(x_with_falling_stroke_cut(), x_left)
     letters = ""
     for char, gap in (("i", "x-i"), ("g", "i-g"), ("o", "g-o")):
         dx = right + GAPS[gap] - INK[char][0]
