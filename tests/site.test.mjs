@@ -60,12 +60,12 @@ before(async () => {
 
 after(() => server?.kill());
 
-for (const path of ["/", "/work", "/journal", "/about"]) {
+for (const path of ["/", "/work", "/journal", "/about", "/contact"]) {
   test(`${path} links the wordmark home and every page (R-NAV-2)`, async () => {
     const { status, html } = await page(path);
     assert.equal(status, 200);
     const header = region(html, "header");
-    for (const href of ["/", "/work", "/journal", "/about", "/#contact"]) {
+    for (const href of ["/", "/work", "/journal", "/about", "/contact"]) {
       assert.match(header, new RegExp(`href="${href}"`));
     }
   });
@@ -73,7 +73,7 @@ for (const path of ["/", "/work", "/journal", "/about"]) {
   test(`${path} ends with the footer's links and license line (R-NAV-3)`, async () => {
     const { html } = await page(path);
     const footer = region(html, "footer");
-    for (const href of ["/", "/work", "/journal", "/about", "/#contact"]) {
+    for (const href of ["/", "/work", "/journal", "/about", "/contact"]) {
       assert.match(footer, new RegExp(`href="${href}"`));
     }
     assert.match(footer, /href="https:\/\/github\.com\/wrych"/);
@@ -81,7 +81,7 @@ for (const path of ["/", "/work", "/journal", "/about"]) {
   });
 }
 
-for (const path of ["/", "/work", "/journal", "/about"]) {
+for (const path of ["/", "/work", "/journal", "/about", "/contact"]) {
   test(`${path} marks itself, and only itself, as current (R-NAV-2)`, async () => {
     const { html } = await page(path);
     const header = region(html, "header");
@@ -97,9 +97,11 @@ test("an unknown path answers 404 with a link home (R-NAV-4)", async () => {
   assert.match(region(html, "main"), /href="\/"/);
 });
 
-test("the contact section mails info@xigo.ch (R-HOME-5)", async () => {
+test("the contact section mails info@xigo.ch and links Contact (R-HOME-5)", async () => {
   const { html } = await page("/");
-  assert.match(html, /id="contact"[\s\S]*href="mailto:info@xigo\.ch"/);
+  const section = html.slice(html.indexOf('id="contact"'));
+  assert.match(section, /href="mailto:info@xigo\.ch"/);
+  assert.match(section, /href="\/contact"/);
 });
 
 test("the contact heading keeps the space between its two sentences (R-HOME-5)", async () => {
@@ -118,6 +120,8 @@ test("pages ship no script and load nothing from another host (R-WEB-1, R-WEB-6)
     "/about/ivo",
     "/work/rebel-match",
     "/about/andy",
+    "/contact",
+    "/contact/sent",
   ]) {
     const { html } = await page(path);
     assert.doesNotMatch(html, /<script/);

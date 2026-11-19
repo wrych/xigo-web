@@ -1,0 +1,502 @@
+---
+import Base from "../layouts/Base.astro";
+import {
+  CONTACT_ADDRESS,
+  EMPTY,
+  FIELDS,
+  MAX_LENGTH,
+  TRAP_FIELD,
+  readSubmission,
+  type Field,
+  type Problems,
+} from "../contact/form";
+import { logSendFailure, serverDesk } from "../contact/server";
+
+export const prerender = false;
+
+const desk = serverDesk();
+let values = { ...EMPTY };
+let problems: Problems = {};
+let trouble: "unsent" | "limited" | undefined;
+
+if (Astro.request.method === "POST" && desk) {
+  const submission = readSubmission(await Astro.request.formData());
+  if (submission.trapped) return Astro.redirect("/contact/sent", 303);
+  values = submission.values;
+  problems = submission.problems;
+  if (Object.keys(problems).length > 0) {
+    Astro.response.status = 400;
+  } else {
+    try {
+      if ((await desk.submit(values)) === "sent")
+        return Astro.redirect("/contact/sent", 303);
+      trouble = "limited";
+      Astro.response.status = 429;
+    } catch (error) {
+      logSendFailure(error);
+      trouble = "unsent";
+      Astro.response.status = 502;
+    }
+  }
+} else if (!desk) {
+  Astro.response.status = Astro.request.method === "POST" ? 503 : 200;
+}
+Astro.response.headers.set("Cache-Control", "no-store");
+
+const FIELD_COPY: Record<
+  Field,
+  { label: string; hint?: string; autocomplete: string }
+> = {
+  name: { label: "Your name", autocomplete: "name" },
+  email: {
+    label: "Your email",
+    hint: "We reply to this address.",
+    autocomplete: "email",
+  },
+  organisation: {
+    label: "Organisation",
+    hint: "The event, community or foundation you are with.",
+    autocomplete: "organization",
+  },
+  message: {
+    label: "How can we help?",
+    hint: "What you are working on, and what you need.",
+    autocomplete: "off",
+  },
+};
+
+const listed = FIELDS.filter((field) => problems[field]);
+const describedBy = (field: Field) =>
+  [
+    FIELD_COPY[field].hint && `${field}-hint`,
+    problems[field] && `${field}-problem`,
+  ]
+    .filter(Boolean)
+    .join(" ") || undefined;
+const number = (index: number) => String(index + 1).padStart(2, "0");
+const mailto = `mailto:${CONTACT_ADDRESS}`;
+---
+
+<Base
+  title="Contact"
+  description="Running an event, a community or a foundation? Tell us what you are working on — xigo helps free of charge."
+>
+  <section class="contact">
+    <div class="aside">
+      <p class="label">
+        <span class="dot">●</span> Contact
+      </p>
+      <h1>
+        Let’s talk<span class="dot">.</span>
+      </h1>
+      <p class="lead muted">
+        Running an event, a community or a foundation? Tell us what you are
+        working on and where you are stuck. Everything we do is free of charge.
+      </p>
+      <div class="direct">
+        <p class="label">Or write to us directly</p>
+        <a class="mail" href={mailto}>
+          {CONTACT_ADDRESS}
+        </a>
+      </div>
+    </div>
+
+    <div class="panel">
+      {!desk ? (
+        <div class="notice" role="status">
+          <p class="notice-title">The form is not available right now.</p>
+          <p>
+            Please write to us at <a href={mailto}>{CONTACT_ADDRESS}</a> — it
+            reaches the same inbox.
+          </p>
+        </div>
+      ) : (
+        <form method="post" action="/contact" class="form">
+          {listed.length > 0 && (
+            <div
+              class="notice problem"
+              id="problems"
+              tabindex="-1"
+              autofocus
+              aria-labelledby="problems-title"
+            >
+              <p class="notice-title" id="problems-title">
+                {listed.length === 1
+                  ? "One thing to fix before we can send this:"
+                  : `${listed.length} things to fix before we can send this:`}
+              </p>
+              <ul>
+                {listed.map((field) => (
+                  <li>
+                    <a href={`#${field}`}>{problems[field]}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {trouble && (
+            <div class="notice problem" tabindex="-1" autofocus role="alert">
+              <p class="notice-title">
+                {trouble === "unsent"
+                  ? "Your message could not be sent."
+                  : "The form has sent many messages this hour, so it is pausing."}
+              </p>
+              <p>
+                Your text is still below. Try again in a while, or write to us
+                at <a href={mailto}>{CONTACT_ADDRESS}</a>.
+              </p>
+            </div>
+          )}
+
+          <ol class="fields">
+            {FIELDS.map((field, index) => {
+              const copy = FIELD_COPY[field];
+              const common = {
+                id: field,
+                name: field,
+                maxlength: MAX_LENGTH[field],
+                autocomplete: copy.autocomplete,
+                required: field !== "organisation",
+                "aria-invalid": problems[field] ? "true" : undefined,
+                "aria-describedby": describedBy(field),
+              };
+              return (
+                <li class:list={["field", { invalid: problems[field] }]}>
+                  <label for={field}>
+                    <span class="index" aria-hidden="true">
+                      {number(index)}
+                    </span>
+                    {copy.label}
+                    {field === "organisation" && (
+                      <span class="optional"> (optional)</span>
+                    )}
+                  </label>
+                  {field === "message" ? (
+                    <textarea {...common} rows="5" set:text={values[field]} />
+                  ) : (
+                    <input
+                      {...common}
+                      type={field === "email" ? "email" : "text"}
+                      value={values[field]}
+                      spellcheck={field === "email" ? "false" : undefined}
+                    />
+                  )}
+                  <span class="rule" aria-hidden="true" />
+                  {problems[field] && (
+                    <p class="field-problem" id={`${field}-problem`}>
+                      {problems[field]}
+                    </p>
+                  )}
+                  {copy.hint && (
+                    <p class="hint" id={`${field}-hint`}>
+                      {copy.hint}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+
+          <div class="trap" aria-hidden="true">
+            <label for={TRAP_FIELD}>Leave this empty</label>
+            <input
+              id={TRAP_FIELD}
+              name={TRAP_FIELD}
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="send">
+            <button type="submit" class="submit">
+              Send message{" "}
+              <span class="arrow" aria-hidden="true">
+                →
+              </span>
+            </button>
+            <p class="privacy">
+              What you send goes to {CONTACT_ADDRESS} and nowhere else. This
+              site keeps no copy, sets no cookie and tracks no one.
+            </p>
+          </div>
+        </form>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 56px clamp(48px, 8vw, 120px);
+    align-items: start;
+    padding: 96px 0 144px;
+  }
+
+  @media (max-width: 900px) {
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+      padding-top: 64px;
+    }
+  }
+
+  .aside {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  @media (min-width: 901px) {
+    .aside {
+      position: sticky;
+      top: 48px;
+    }
+  }
+
+  .aside .label,
+  .direct .label {
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(64px, 10vw, 136px);
+    line-height: 0.92;
+    letter-spacing: -0.055em;
+  }
+
+  .lead {
+    margin: 0;
+    max-width: 400px;
+    font-size: 18px;
+  }
+
+  .direct {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+
+  .mail {
+    align-self: flex-start;
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.4vw, 28px);
+    letter-spacing: -0.02em;
+    border-bottom: 1px solid var(--accent);
+    padding-bottom: 4px;
+  }
+
+  .panel {
+    padding: clamp(28px, 5vw, 56px);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background:
+      radial-gradient(
+        120% 80% at 100% 0%,
+        rgb(230 199 156 / 6%),
+        transparent 60%
+      ),
+      var(--surface);
+  }
+
+  .fields {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .field {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .index {
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+    color: var(--accent);
+  }
+
+  .optional {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    margin: 0;
+    padding: 14px 0 12px;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2.2vw, 26px);
+    font-weight: 300;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+    caret-color: var(--accent);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 140px;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+  }
+
+  .rule {
+    height: 2px;
+    margin-top: -2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .field:focus-within .rule {
+    transform: scaleX(1);
+  }
+
+  .field:focus-within label {
+    color: var(--text);
+  }
+
+  .hint,
+  .field-problem {
+    margin: 10px 0 0;
+    font-size: 14px;
+  }
+
+  .hint {
+    color: var(--muted);
+  }
+
+  .field-problem {
+    color: var(--problem);
+  }
+
+  .invalid input,
+  .invalid textarea {
+    border-bottom-color: var(--problem);
+  }
+
+  .invalid .rule {
+    background: var(--problem);
+  }
+
+  .trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .send {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px 32px;
+    margin-top: 56px;
+  }
+
+  .submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 56px;
+    padding: 0 30px;
+    border: 1px solid var(--text);
+    border-radius: 999px;
+    background: var(--text);
+    color: var(--ground);
+    font: 500 16px var(--font-body);
+    cursor: pointer;
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  .submit:hover,
+  .submit:focus-visible {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .arrow {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .submit:hover .arrow,
+  .submit:focus-visible .arrow {
+    transform: translateX(4px);
+  }
+
+  .privacy {
+    flex: 1 1 240px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .notice {
+    margin-bottom: 40px;
+    padding: 20px 24px;
+    border: 1px solid var(--line-strong);
+    border-left: 2px solid var(--accent);
+    border-radius: 4px 12px 12px 4px;
+    background: rgb(237 235 230 / 3%);
+  }
+
+  .notice.problem {
+    border-left-color: var(--problem);
+  }
+
+  .notice:focus {
+    outline: none;
+  }
+
+  .notice p {
+    margin: 0;
+  }
+
+  .notice-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px !important;
+  }
+
+  .notice ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .notice a {
+    border-bottom: 1px solid currentColor;
+  }
+</style>

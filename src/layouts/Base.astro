@@ -61,7 +61,11 @@ const pageTitle = canonicalPath(path) === "/" ? title : `${title} — xigo`;
               {page.label}
             </a>
           ))}
-          <a class="pill" href={CONTACT_HREF}>
+          <a
+            class="pill"
+            href={CONTACT_HREF}
+            aria-current={isCurrent(CONTACT_HREF, path) ? "page" : undefined}
+          >
             Get in touch
           </a>
         </nav>

@@ -104,9 +104,14 @@ const topics = (project: {
       Running an event, a community or a foundation?{" "}
       <span class="muted">Let’s see how we can help — for free.</span>
     </h2>
-    <a class="mail" href="mailto:info@xigo.ch">
-      info@xigo.ch
-    </a>
+    <div class="reach">
+      <a class="button primary" href="/contact">
+        Write to us
+      </a>
+      <a class="mail" href="mailto:info@xigo.ch">
+        info@xigo.ch
+      </a>
+    </div>
   </section>
 </Base>
 
@@ -261,6 +266,13 @@ const topics = (project: {
     max-width: 900px;
     font-size: clamp(40px, 6vw, 80px);
     letter-spacing: -0.04em;
+  }
+
+  .reach {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px 40px;
   }
 
   .mail {
