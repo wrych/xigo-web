@@ -5,6 +5,7 @@ import {
   MATCH_CYCLE_SECONDS,
   SCENE_HEIGHT,
   SCENE_WIDTH,
+  HERO_PULSE_CYCLE_SECONDS,
   HERO_SIZE,
   heroScene,
   networkScene,
@@ -101,4 +102,25 @@ test("the hero network stays inside its frame and has golden hubs (R-HOME-6)", (
   }
   assert.ok(nodes.some((node) => node.hub));
   assert.ok(links.length > 0);
+});
+
+test("each hero node knows the nodes it is joined to (R-HOME-6)", () => {
+  const { nodes, links, neighbours } = heroScene();
+  assert.equal(neighbours.length, nodes.length);
+  assert.equal(neighbours.flat().length, 2 * links.length);
+  neighbours.forEach((others, i) => {
+    for (const j of others) assert.ok(neighbours[j].includes(i));
+  });
+});
+
+test("the hero's idle pulses travel along its lines, within one cycle (R-HOME-6)", () => {
+  const { links, pulses } = heroScene();
+  const same = (a, b) =>
+    (a.x1 === b.x1 && a.y1 === b.y1 && a.x2 === b.x2 && a.y2 === b.y2) ||
+    (a.x1 === b.x2 && a.y1 === b.y2 && a.x2 === b.x1 && a.y2 === b.y1);
+  assert.ok(pulses.length > 0);
+  for (const pulse of pulses) {
+    assert.ok(links.some((link) => same(link, pulse)));
+    assert.ok(pulse.delay < HERO_PULSE_CYCLE_SECONDS);
+  }
 });

@@ -161,11 +161,19 @@ const HERO_LINK_DISTANCE = 62;
 const HERO_HUB_EVERY = 6;
 const HERO_HUB_RADIUS = 3.4;
 const HERO_MEMBER_RADIUS = 1.8;
+const HERO_PULSES = 7;
+const HERO_PULSE_INTERVAL_SECONDS = 1.6;
+export const HERO_PULSE_CYCLE_SECONDS =
+  HERO_PULSES * HERO_PULSE_INTERVAL_SECONDS;
 
 export interface HeroScene {
   size: number;
   nodes: SceneNode[];
   links: SceneLine[];
+  /** For each node, the indices of the nodes it is joined to. */
+  neighbours: number[][];
+  /** The lines the idle pulses travel along, each with its start in the cycle. */
+  pulses: SceneMatch[];
 }
 
 /** The network beside Home's opening statement (R-HOME-6): people scattered
@@ -189,12 +197,27 @@ export function heroScene(seed = HERO_SEED): HeroScene {
     });
   }
   const links: SceneLine[] = [];
+  const neighbours: number[][] = nodes.map(() => []);
   nodes.forEach((a, i) => {
-    for (const b of nodes.slice(i + 1)) {
-      if (Math.hypot(a.x - b.x, a.y - b.y) < HERO_LINK_DISTANCE) {
+    nodes.forEach((b, j) => {
+      if (j > i && Math.hypot(a.x - b.x, a.y - b.y) < HERO_LINK_DISTANCE) {
         links.push(line(a, b));
+        neighbours[i].push(j);
+        neighbours[j].push(i);
       }
-    }
+    });
   });
-  return { size: HERO_SIZE, nodes, links };
+  const joined = nodes
+    .map((_, index) => index)
+    .filter((index) => neighbours[index].length > 0);
+  const pulses: SceneMatch[] = [];
+  for (let index = 0; index < HERO_PULSES; index += 1) {
+    const from = joined[Math.floor(random() * joined.length)];
+    const to = neighbours[from][Math.floor(random() * neighbours[from].length)];
+    pulses.push({
+      ...line(nodes[from], nodes[to]),
+      delay: round(index * HERO_PULSE_INTERVAL_SECONDS),
+    });
+  }
+  return { size: HERO_SIZE, nodes, links, neighbours, pulses };
 }

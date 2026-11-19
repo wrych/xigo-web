@@ -35,7 +35,10 @@ xigo.ch, as served to a visitor.
 - **R-HOME-6** Home's opening statement stands beside an illustration of a
   network, drawn in SVG and CSS at build time, so it needs no JavaScript. It is
   decorative: hidden from assistive technology, left out at phone width, and
-  still under reduced motion (R-WEB-4).
+  still under reduced motion (R-WEB-4). Its nodes breathe and soft pulses
+  travel along a few of its lines. A node grows a little under the pointer;
+  pressed, it flashes, and on release signals travel from it to the nodes it
+  is joined to, which light up as each signal arrives.
 
 ## Work (R-WORK)
 
